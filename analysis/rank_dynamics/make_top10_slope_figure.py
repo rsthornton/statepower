@@ -72,7 +72,7 @@ def main():
     ax.text(XL, 0.0, "Top 10 in trade prestige", ha="left", va="bottom", fontsize=28, fontweight="bold", color=PRESTIGE)
     ax.text(XR, 0.0, "Top 10 in bridge position", ha="right", va="bottom", fontsize=28, fontweight="bold", color=BRIDGE)
     ax.text(0.5, 11.1, f"Gray lines: on both lists ({len(both)} states).  "
-            f"{51 - len(brokers)} of 51 states broker no routes at all.",
+            f"{51 - len(brokers)} of 51 states lie on no shortest paths.",
             ha="center", va="top", fontsize=21, color=MUTED)
 
     ax.set_xlim(-0.08, 1.08)
