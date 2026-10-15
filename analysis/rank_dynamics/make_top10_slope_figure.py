@@ -55,7 +55,8 @@ def main():
         ax.text(XL + 0.0, y, s, ha="left", va="center", fontsize=30, fontweight="bold", color=c)
         if alone:
             other = "bridge rank: none" if s not in brokers else f"bridge rank {rows[s]['rank_betweenness']}"
-            ax.text(XL + 0.11, y, other, ha="left", va="center", fontsize=22, color=PRESTIGE, style="italic")
+            ax.text(XL + 0.11, y, other, ha="left", va="center", fontsize=22, color=PRESTIGE, style="italic", zorder=3,
+                    bbox=dict(facecolor="white", edgecolor="none", pad=4))
 
     for s in bridge:
         y = rows[s]["rank_betweenness"]
@@ -65,7 +66,8 @@ def main():
         ax.text(XR + 0.02, y, f"{y}", ha="left", va="center", fontsize=24, color=MUTED)
         if alone:
             ax.text(XR - 0.11, y, f"prestige rank {rows[s]['rank_eigenvector']}", ha="right", va="center",
-                    fontsize=22, color=BRIDGE, style="italic")
+                    fontsize=22, color=BRIDGE, style="italic", zorder=3,
+                    bbox=dict(facecolor="white", edgecolor="none", pad=4))
 
     ax.text(XL, 0.0, "Top 10 in trade prestige", ha="left", va="bottom", fontsize=28, fontweight="bold", color=PRESTIGE)
     ax.text(XR, 0.0, "Top 10 in bridge position", ha="right", va="bottom", fontsize=28, fontweight="bold", color=BRIDGE)
