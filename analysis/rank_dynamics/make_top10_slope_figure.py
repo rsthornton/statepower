@@ -1,8 +1,9 @@
 """
 Two top-10 lists, 2017: the ten states highest in trade prestige (in-flow
-eigenvector) beside the ten highest in bridge position (betweenness). States on
-both lists are joined; the others are marked with their rank on the other
-measure, or "none" when their betweenness is zero.
+eigenvector) beside the ten highest in bridge position (betweenness). Each list
+sits on its own card; states on both lists are joined across the gap. The
+others carry their rank on the other measure, or "none" when their betweenness
+is zero.
 
 Reads the dashboard's published centralities (web/public/data/centralities_51.json);
 writes figures/ here.
@@ -13,13 +14,17 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
+from matplotlib.patches import FancyBboxPatch, PathPatch
+from matplotlib.path import Path as MPath
 
 HERE = Path(__file__).resolve().parent
 DATA = HERE.parents[1] / "web" / "public" / "data" / "centralities_51.json"
 OUT = HERE / "figures"
-INK, MUTED, LINE = "#1f2a24", "#5a5c5b", "#b9c1bc"
+INK, MUTED, LINE = "#1f2a24", "#6b726e", "#aab4ae"
 PRESTIGE, BRIDGE = "#005a43", "#0072b2"
-XL, XR = 0.0, 1.0
+CARD_P, CARD_B = "#eaf2ee", "#e8f1f8"
+L0, L1 = 0.0, 0.36
+R0, R1 = 0.64, 1.0
 
 
 def font():
@@ -28,6 +33,20 @@ def font():
         if name in names:
             return name
     return "sans-serif"
+
+
+def card(ax, x0, x1, color):
+    ax.add_patch(FancyBboxPatch((x0, -0.95), x1 - x0, 11.55, boxstyle="round,pad=0,rounding_size=0.02",
+                                facecolor=color, edgecolor="none", zorder=0, mutation_aspect=12))
+
+
+def connector(ax, y0, y1):
+    xa, xb = L1 + 0.01, R0 - 0.01
+    mid = (xa + xb) / 2
+    path = MPath([(xa, y0), (mid, y0), (mid, y1), (xb, y1)],
+                 [MPath.MOVETO, MPath.CURVE4, MPath.CURVE4, MPath.CURVE4])
+    ax.add_patch(PathPatch(path, facecolor="none", edgecolor=LINE, lw=3.2, capstyle="round", zorder=1))
+    ax.scatter([xa, xb], [y0, y1], s=70, color=LINE, zorder=2)
 
 
 def main():
@@ -42,43 +61,45 @@ def main():
     plt.rcParams["font.family"] = font()
     fig, ax = plt.subplots(figsize=(16, 9), dpi=200)
     fig.patch.set_facecolor("white")
+    card(ax, L0, L1, CARD_P)
+    card(ax, R0, R1, CARD_B)
+
+    ax.text(L0 + 0.03, -0.3, "Top 10 in trade prestige", ha="left", va="center",
+            fontsize=27, fontweight="bold", color=PRESTIGE)
+    ax.text(R0 + 0.03, -0.3, "Top 10 in bridge position", ha="left", va="center",
+            fontsize=27, fontweight="bold", color=BRIDGE)
 
     for s in both:
-        y0, y1 = rows[s]["rank_eigenvector"], rows[s]["rank_betweenness"]
-        ax.plot([XL + 0.09, XR - 0.09], [y0, y1], color=LINE, lw=3, zorder=1)
+        connector(ax, rows[s]["rank_eigenvector"], rows[s]["rank_betweenness"])
 
     for s in prestige:
         y = rows[s]["rank_eigenvector"]
         alone = s not in both
-        c = PRESTIGE if alone else INK
-        ax.text(XL - 0.02, y, f"{y}", ha="right", va="center", fontsize=24, color=MUTED)
-        ax.text(XL + 0.0, y, s, ha="left", va="center", fontsize=30, fontweight="bold", color=c)
+        ax.text(L0 + 0.065, y, f"{y}", ha="right", va="center", fontsize=22, color=MUTED)
+        ax.text(L0 + 0.09, y, s, ha="left", va="center", fontsize=29, fontweight="bold",
+                color=PRESTIGE if alone else INK)
         if alone:
-            other = "bridge rank: none" if s not in brokers else f"bridge rank {rows[s]['rank_betweenness']}"
-            ax.text(XL + 0.11, y, other, ha="left", va="center", fontsize=22, color=PRESTIGE, style="italic", zorder=3,
-                    bbox=dict(facecolor="white", edgecolor="none", pad=4))
+            note = "bridge rank: none" if s not in brokers else f"bridge rank {rows[s]['rank_betweenness']}"
+            ax.text(L1 - 0.025, y, note, ha="right", va="center", fontsize=21, color=PRESTIGE)
 
     for s in bridge:
         y = rows[s]["rank_betweenness"]
         alone = s not in both
-        c = BRIDGE if alone else INK
-        ax.text(XR + 0.0, y, s, ha="right", va="center", fontsize=30, fontweight="bold", color=c)
-        ax.text(XR + 0.02, y, f"{y}", ha="left", va="center", fontsize=24, color=MUTED)
+        ax.text(R0 + 0.065, y, f"{y}", ha="right", va="center", fontsize=22, color=MUTED)
+        ax.text(R0 + 0.09, y, s, ha="left", va="center", fontsize=29, fontweight="bold",
+                color=BRIDGE if alone else INK)
         if alone:
-            ax.text(XR - 0.11, y, f"prestige rank {rows[s]['rank_eigenvector']}", ha="right", va="center",
-                    fontsize=22, color=BRIDGE, style="italic", zorder=3,
-                    bbox=dict(facecolor="white", edgecolor="none", pad=4))
+            ax.text(R1 - 0.025, y, f"prestige rank {rows[s]['rank_eigenvector']}", ha="right", va="center",
+                    fontsize=21, color=BRIDGE)
 
-    ax.text(XL, 0.0, "Top 10 in trade prestige", ha="left", va="bottom", fontsize=28, fontweight="bold", color=PRESTIGE)
-    ax.text(XR, 0.0, "Top 10 in bridge position", ha="right", va="bottom", fontsize=28, fontweight="bold", color=BRIDGE)
-    ax.text(0.5, 11.1, f"Gray lines: on both lists ({len(both)} states).  "
+    ax.text(0.5, 11.25, f"Lines join the {len(both)} states on both lists.  "
             f"{51 - len(brokers)} of 51 states lie on no shortest paths.",
             ha="center", va="top", fontsize=21, color=MUTED)
 
-    ax.set_xlim(-0.08, 1.08)
-    ax.set_ylim(11.9, -0.9)
+    ax.set_xlim(-0.01, 1.01)
+    ax.set_ylim(11.8, -1.15)
     ax.axis("off")
-    fig.subplots_adjust(left=0.03, right=0.97, top=0.97, bottom=0.03)
+    fig.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.02)
     OUT.mkdir(exist_ok=True)
     for ext in ("png", "svg"):
         fig.savefig(OUT / f"top10-prestige-vs-bridge-2017.{ext}", facecolor="white")
