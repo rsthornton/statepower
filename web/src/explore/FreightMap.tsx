@@ -479,7 +479,8 @@ export default function FreightMap() {
     return out;
   }, [routeFlow, routeCands, selState, view, national, cm, net, measure, year, gdpLens, risers, cycling, tourExtra, ra, side, marks, tour, opening, ras, yd, com, sctg]);
 
-  useEffect(() => { sceneRef.current?.setLabels(labels); }, [labels]);
+  // While the opening card is up, the map shows behind it without labels, so nothing competes with its words.
+  useEffect(() => { sceneRef.current?.setLabels(opening ? [] : labels); }, [labels, opening]);
 
   // Alaska and Hawaii sit in insets far from their partners: frame them with the states their arcs reach (#12).
   const framed = (s: number) => {
@@ -700,7 +701,7 @@ export default function FreightMap() {
         <section className="fm-stage" onPointerMove={onPointerMove} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerLeave={() => setHover(null)}>
           <canvas ref={canvasRef} data-testid="map-canvas" role="img" aria-label={canvasLabel} />
           <div ref={overlayRef} className="fm-overlay" />
-          <Legend view={view} selState={selState} names={cm.names} C={C} measure={measure} setMeasure={setMeasure} gdpLens={gdpLens} ties={bare ? "none" : lit ? "lit" : "plain"} comName={com?.name} year={year} side={side} sized={!!THEMES[theme].scene.field && THEMES[theme].scene.dotSized !== false} />
+          {!opening && <Legend view={view} selState={selState} names={cm.names} C={C} measure={measure} setMeasure={setMeasure} gdpLens={gdpLens} ties={bare ? "none" : lit ? "lit" : "plain"} comName={com?.name} year={year} side={side} sized={!!THEMES[theme].scene.field && THEMES[theme].scene.dotSized !== false} />}
           {tooltip && hover && (
             <div className="fm-tip" style={{ left: Math.min(hover.x + 14, 9999), top: hover.y + 14 }} data-testid="tooltip">{tooltip}</div>
           )}

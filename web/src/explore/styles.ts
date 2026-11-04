@@ -374,6 +374,7 @@ html, body { margin: 0; background: var(--bg); }
 }
 /* Narrow phones: wide tables become one block per row, each value labelled. */
 @media (max-width: 560px) {
+  .fm-open { background: var(--card) !important; }
   .fp-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .fp-stack, .fp-stack tbody, .fp-stack tr, .fp-stack td { display: block; width: 100%; }
   .fp-stack caption { display: block; }
