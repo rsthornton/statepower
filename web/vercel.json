@@ -1,0 +1,60 @@
+{
+  "rewrites": [
+    {
+      "source": "/explore",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/findings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/data",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/methods",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "ustradeflow.systems"
+        }
+      ],
+      "destination": "https://statepower.systems/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.ustradeflow.systems"
+        }
+      ],
+      "destination": "https://statepower.systems/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.statepower.systems"
+        }
+      ],
+      "destination": "https://statepower.systems/$1",
+      "permanent": true
+    },
+    {
+      "source": "/classic",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
+}

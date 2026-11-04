@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software or its derived data, please cite it as below."
+title: "The Interstate Power Observatory"
+abstract: "Network measures of U.S. states' positions in interstate trade (Commodity Flow Survey 2012, 2017 and 2022), compared with GDP, with an interactive site at https://statepower.systems."
+authors:
+  - family-names: Thornton
+    given-names: Shingai
+type: software
+license: MIT
+repository-code: "https://github.com/rsthornton/us-trade-centrality"
+url: "https://statepower.systems"

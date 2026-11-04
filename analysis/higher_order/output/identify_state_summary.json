@@ -1,0 +1,100 @@
+{
+ "2012": {
+  "shipments": {
+   "records": {
+    "origin_by_commodity": 2.1826791595548816,
+    "origin_by_destination": 8.608454942380916,
+    "origin_by_both": 13.701419244680194,
+    "destination_by_commodity": 0.8074251148103707,
+    "destination_by_origin": 8.728619761595855,
+    "destination_by_both": 12.486954485490115
+   },
+   "dollars": {
+    "origin_by_commodity": 7.304242461166189,
+    "origin_by_destination": 11.250554780565793,
+    "origin_by_both": 26.10371076223867,
+    "destination_by_commodity": 2.3767647859914054,
+    "destination_by_origin": 11.088919695908146,
+    "destination_by_both": 20.906143859498716
+   }
+  }
+ },
+ "2017": {
+  "shipments": {
+   "records": {
+    "origin_by_commodity": 2.1702657880453895,
+    "origin_by_destination": 8.550270125549961,
+    "origin_by_both": 13.536407700367935,
+    "destination_by_commodity": 0.7975556350355407,
+    "destination_by_origin": 8.641560695375,
+    "destination_by_both": 12.285052961473866
+   },
+   "dollars": {
+    "origin_by_commodity": 5.994242229879503,
+    "origin_by_destination": 10.826983488169091,
+    "origin_by_both": 23.65724279518291,
+    "destination_by_commodity": 2.0176563075075293,
+    "destination_by_origin": 10.637880101530726,
+    "destination_by_both": 19.372156058272477
+   }
+  },
+  "profiles": {
+   "1": {
+    "observed": 18,
+    "outflow_only": 6,
+    "inflow_only": 2,
+    "shuffled_mean": 30.155,
+    "shuffled_95": [
+     23.0,
+     38.0
+    ],
+    "share_shuffled_at_least_observed": 0.999,
+    "national_mix_mean": 0.86
+   },
+   "2": {
+    "observed": 45,
+    "outflow_only": 27,
+    "inflow_only": 10,
+    "shuffled_mean": 50.776,
+    "shuffled_95": [
+     49.0,
+     51.0
+    ],
+    "share_shuffled_at_least_observed": 1.0,
+    "national_mix_mean": 1.474
+   },
+   "3": {
+    "observed": 51,
+    "outflow_only": 47,
+    "inflow_only": 29,
+    "shuffled_mean": 50.996,
+    "shuffled_95": [
+     51.0,
+     51.0
+    ],
+    "share_shuffled_at_least_observed": 0.998,
+    "national_mix_mean": 3.572
+   }
+  }
+ },
+ "2022": {
+  "shipments": {
+   "records": {
+    "origin_by_commodity": 4.836550344074664,
+    "origin_by_destination": 5.988726269242629,
+    "origin_by_both": 14.011888353200877,
+    "destination_by_commodity": 0.6454040454039481,
+    "destination_by_origin": 5.903629015721558,
+    "destination_by_both": 9.690364403323358
+   },
+   "dollars": {
+    "origin_by_commodity": 6.118994448137616,
+    "origin_by_destination": 10.232470071994694,
+    "origin_by_both": 23.40137910887332,
+    "destination_by_commodity": 2.161447271019674,
+    "destination_by_origin": 10.078542091297507,
+    "destination_by_both": 19.18385144280771
+   }
+  }
+ }
+}

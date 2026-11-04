@@ -1,0 +1,14 @@
+{
+ "2012": {
+  "observed_persistent_share": 0.1195,
+  "sampling_only_expected": 0.6625
+ },
+ "2017": {
+  "observed_persistent_share": 0.1361,
+  "sampling_only_expected": 0.6999
+ },
+ "2022": {
+  "observed_persistent_share": 0.1379,
+  "sampling_only_expected": 0.7177
+ }
+}

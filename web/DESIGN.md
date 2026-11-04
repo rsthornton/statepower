@@ -1,148 +1,82 @@
-# The Interstate Power Observatory — Design System
+# The Interstate Power Observatory: design system
 
-The public design contract for the web app. Read this before changing anything visual.
-The `trade-observatory` Claude skill points here.
+The design contract for the site. Read this before changing anything visual. Its history and the reasons behind each choice are in `docs/next-site/LOG.md`.
 
 ## Identity
 
-**Product name:** The Interstate Power Observatory (matches the ResearchHub proposal title).
-**Thesis:** GDP measures what a state produces; network centrality reveals the leverage it holds.
-**Register:** editorial, analytical, credible. Light, warm, uncluttered. The map is the hero.
+**Name:** The Interstate Power Observatory.
+**Claim:** GDP is not equivalent to economic power. A state's position in the network of interstate shipments is a different thing from its size.
+**Register:** plain, analytical, checkable. The map leads; every number on a page traces to a file in this repo.
 
 ## Stack
 
-React 19 + Vite 8 + TypeScript (strict) + Tailwind 4 (CSS-first `@theme`, no `tailwind.config.js`).
-The choropleth map and flow arcs are **hand-rolled SVG with zero charting dependencies**
-(`lib/geo.ts` Albers projection, `lib/topo.ts` TopoJSON decoder). This is deliberate — keep it.
+React 19, Vite, TypeScript (strict). The map is a three.js scene (`src/engine/`) with a WebGL check and a fallback page. Page CSS lives in one template string, `src/explore/styles.ts`, injected once; it also exports `PHONE`, the phone media query (narrow screens, and phones held sideways).
 
-## Tokens
+## Appearances
 
-Tokens live as CSS custom properties in `src/index.css` `:root` and are consumed in inline
-styles via `var(--x)` (the dominant pattern here). A typed mirror in `src/tokens.ts` exists for
-SVG presentation props and numeric props, where `var()` is not valid. **Change values in
-`index.css` first**, then mirror into `tokens.ts` if JS needs them. Add new colors to `:root`
-before using them in a component.
+Five appearances: three in the menu at the right of the site bar, all five with `?theme=`. Each sets CSS variables on `:root[data-theme=…]` in `styles.ts` and a scene palette in `src/engine/theme.ts`.
 
-| Group | Tokens |
-|---|---|
-| Surface | `--bg-primary #fafafa` (neutral off-white), `--bg-secondary #ffffff` (cards pop), `--bg-surface #f2f2f2` |
-| Canvas stage | `--canvas-from #fafafa` → `--canvas-to #f2f2f2` (state panel only; the map and comparison cards are flat white) |
-| Text | `--text-primary #111111`, `--text-secondary #4a4a4a`, `--text-muted #6b6b6b` (AA on the page background) |
-| Accents | `--accent-blue #0a5cb8` (links), `--accent-green #1a9960`, `--accent-red #dd3344`, `--accent-orange #dd7722`; rank gap vs GDP `--gap-above #0e7c86` (teal), `--gap-below #a15c00` (ochre), always with a sign |
-| Borders | `--border #e5e5e5` (interactive elements, cards), `--hairline #efefef` (faint dividers) |
-| Map viz | `--map-selection #ffa94d`, `--map-dim #a3a3a3`, `--map-empty #ececec`, `--map-wash #e6e6e6`, `--map-stroke #d6d6d6`, `--map-hover #737373` |
-| Radius | `--radius-sm 4`, `--radius-md 6`, `--radius-lg 8` (controls), `--radius-card 12` (cards/panels/drawer), `--radius-pill 9999` |
-| Shadow | `--shadow-card`, `--shadow-card-hover`, `--shadow-drawer` |
-| Z-index | `--z-drawer 10`, `--z-tooltip 20`, `--z-hint 30` |
-| Motion | `--transition-fast 150ms`, `--transition-base 200ms`, `--transition-slow 300ms` |
-| Fonts | `--font-sans` Inter (UI, body), `--font-serif` Source Serif 4 600 (H1 and claim titles only), `--font-mono` JetBrains Mono (numbers, codes); tabular numerals on `body` |
-
-**Data-viz palette** (`src/lib/colors.ts`): `CIVIDIS` (32-stop, navy to yellow, perceptually
-uniform and **colorblind-safe**, used for the centrality choropleth), `BRBG` (17-stop divergence,
-brown to teal, neutral midpoint), and `MEASURE_COLORS` (Okabe-Ito: eigenvector `#009e73`, betweenness
-`#0072b2`, out_degree `#d55e00`; markers and dots, not large fills). Keep both ramps colorblind-safe, and never use red/blue for
-divergence (reads as an election map on US states).
-
-## UI primitives (`src/components/ui/`)
-
-Composable, token-driven. Prefer these over new bespoke inline styles. View them live at
-`#/components` (DEV only — `src/dev/Gallery.tsx`).
-
-| Primitive | Props (key) | Notes |
+| Appearance | `data-theme` | Status |
 |---|---|---|
-| `Button` | `variant` ghost/outline/solid, `size` sm/md, `active`, `accent`, `mono` | toggle-style `active` tints with accent |
-| `Pill` | `active`, `color`, `subtitle`, `onClick` | the centrality measure pills |
-| `SegmentedControl<T>` | `options[]`, `value`, `onChange`, `accent` | direction toggle, commodity quick-picks |
-| `Select` | `value`, `onChange`, `groups[]`, `leadingOption` | styled native select + custom chevron |
-| `Slider` | `min`, `max`, `step`, `value`, `onChange` | styled range |
-| `Card` | `surface` surface/secondary, `padded` | inset surface container |
-| `Badge` | `tone` neutral/green/blue/red, `color`, `mono` | rank badges |
-| `Tooltip` | `x`, `y`, `visible` | controlled floating box (map hover) |
-| `tint(color, pct)` | — | translucent color helper (hex alpha or color-mix) |
+| Observatory (light) | `observatorylight` | Default (since 2026-11-04); states drawn as dot fields |
+| Observatory (dark) | `observatory` | Menu |
+| Neutral | `frostneutral` | Menu |
+| Slate, Band | `frost`, `frostband` | Off the menu (2026-11-04); still reachable with `?theme=` and checked by the e2e suite |
 
-## App components
+The Frost rules apply to all five: Inter, straight edges (radius 0), no shadows, gradients or blur on page chrome. Observatory (light) is the default; dark and Neutral stay in the menu.
 
-- `App.tsx` — orchestrator: header/hero, control bar, map + drawer, legend, rankings, footer; owns all state and the `?state=&measure=` URL sync.
-- `brand/Wordmark.tsx` — network-glyph mark + wordmark (shares measure colors with the viz).
-- `Footer.tsx` — data attribution + Halcyonic Systems.
-- `OrientationHint.tsx` — dismissible first-visit nudge (localStorage).
-- `TradeMap.tsx` — **the hero**; zero-dep SVG choropleth + Bézier flow arcs + hover tooltip. Props: `geojson, centralities, measure, selectedState, onSelectState, edges, showEdges, flowDirection`. The viz color literals inside are the viz contract.
-- `CentralityPills.tsx`, `CommodityFilter.tsx`, `ColorLegend.tsx` — controls.
-- `drawer/` — `StateDossier` (horizontal detail panel below the stage) + `TradeCard`, `PartnersList`, `format.ts`.
-- `rankings/` — `DivergenceView` (the Divergence canvas) + `DivergenceDumbbell` (GDP-rank → network-rank gap per state, the hero chart), `DivergenceTable` (full 51-state list behind "show all"), `constants.ts`.
-- `hooks/useUrlState.ts` — deep-link read on mount + sync on change.
+## Color
+
+| Use | Color |
+|---|---|
+| Centrality (Position view) | Cividis: perceptually uniform, colorblind-safe, lightness rises with value |
+| Beyond pairs (ratio to typical) | BrBG divergence on a log scale, ½× to 2×, neutral at 1× |
+| Routes and outbound | Indigo (`accent`, per appearance) |
+| Inbound | Teal |
+| Thin routes (fewer survey records than the threshold) | Darker gray (`thinRoute`) at 0.55 opacity, named in the legend |
+| Warning | Amber, only for warnings |
+
+Never red and blue for a divergence: on U.S. states it reads as an election map. Colors are added to the appearance's variables first, then used.
 
 ## Layout
 
-Brand bar (wordmark + nav) → hero (eyebrow, title, dek, rotating finding) → then a **two-column
-console**: a **left control rail** beside the **canvas stage**.
-- **Left rail** (`lg:w-[300px]`): Map / Divergence view tabs, the vertical measure selector, the
-  commodity filter, and (map view only) the network/flows toggles + top-N slider + direction.
-- **Stage:** the selected view fills the rest — Map (choropleth + flow arcs + legend) or Divergence
-  (the dumbbell + "show all 51 states" table). When a state is selected, a **horizontal
-  `StateDossier` opens below the stage content** (the map shrinks slightly to fit), keeping the
-  detail with the data instead of over it or in the rail.
+- **Site bar:** name (links home), Map / Findings / Data / Methods / Code, appearance menu.
+- **Toolbar:** Year, Scope (All commodities, One commodity, Beyond pairs), then the controls that view needs (commodity and Flows / Reliance, Side, links shown). A control shows only in the views it affects.
+- **Stage:** the map, with overlays: the legend (top left), the map tools (3D / 2D, Reset view, Tour), and on desktop the tour card. Every overlay over the canvas carries `data-occludes`; the scene fits its home view into the space they leave and shifts the image there, so no state sits under an overlay. A new overlay gets the attribute.
+- **Side panel:** a state picker, then tabs per view (State, Rankings or Ladder, Route, Commodity, How it's measured, About).
+- **Phones** (`PHONE`): the toolbar stacks, the tour card sits under the map, the panel follows below. Held sideways, the map fills the screen and the tour card sits top right. Tap targets are at least 24 by 24 CSS pixels.
+- **Labels:** at most five on the map, in priority order; a label that would overlap an earlier one is hidden.
 
-Below the console: a persistent mono status bar (nodes/edges/density) → footer. On `< lg` the rail
-collapses to a stacked column above the stage. The two views are peers, switched by the tab control
-(App `view` state); they share the measure + commodity controls.
+## Honest encoding
 
-## Craft principles (the polish rules)
+The map's data channels are state color (order preserved), state height (linear in the value), arc width (dollars) and arc color (inbound, outbound). Everything else is decoration, and decoration must never read as data.
 
-- **Quiet chrome, loud data, colored surfaces.** Controls stay near-monochrome (greys + one blue
-  for links). The *data* (map ramp, divergence green/red) owns saturated color. *Surfaces* stay
-  neutral: an off-white page, white cards, and a faint grey "canvas stage" gradient behind the map
-  and divergence panels. No tinted page or glow; don't accent-fill controls.
-- **The active measure's hue threads the UI.** The canvas stage's 2.5px top accent and the measure
-  selector dot use the active measure's color (eigenvector green / betweenness blue / out-degree
-  orange). Switching measures retints the stage.
-- **Color earns its place by meaning.** The divergence dumbbell's faint green/red background bands
-  reinforce the overperform/underperform split. Prefer meaningful color washes over decorative ones.
-- **Surfaces and hairlines over outlines.** Prefer whitespace, a `--bg-surface` fill, or a soft
-  shadow to group things. Reach for `--hairline` for dividers and `--border` only on interactive
-  elements. Avoid wrapping every control in its own outline.
-- **One segmented language.** The enclosed `SegmentedControl` (surface container, active segment
-  lifts on `--bg-secondary` + `--shadow-card`) is the shared style for view tabs, the direction
-  toggle, the commodity quick-picks, and the measure selector. Reuse it; don't invent new toggles.
-- **Measure color = a dot, not a border.** The measure's color appears as a small dot tying it to
-  the map ramp, never as a full pill tint/outline.
-- **Centered frame.** Content sits in a centered `max-w-[1240px]` column, not edge-to-edge.
-- **Radius:** controls `--radius-lg` (8), cards/panels/drawer `--radius-card` (12), pills full.
+- **DO** name every channel that varies with the value in the legend (e.g. "Color, height and dot size by"). The e2e suite checks the wording per appearance.
+- **DO** keep relief, water and terrain on the ground plane at low amplitude. They never change a state's top height.
+- **DO** add an e2e check that samples rendered state colors across the ramp and asserts their luminance order matches value order, whenever lighting, tone mapping, fog or grading changes.
+- **DON'T** bloom, light or shadow state tops; tops carry color. Glow belongs to arcs and particles only.
+- **DON'T** reuse a data channel for effect (no decorative height, no state tint from lighting, no arc width for emphasis).
+- **DON'T** animate data under reduced motion; first-visit effects run once per visitor and settle before labels or the legend appear.
 
-## Do / Don't
+## Copy
 
-- **DO** keep the map zero-dependency SVG. No D3, no Mapbox.
-- **DO** keep Cividis (colorblind-safe) for centrality, BrBG for divergence.
-- **DO** default to light mode. It is the only mode; do not add a dark toggle without sign-off.
-- **DO** add new colors to `index.css` `:root` first, then reference via `var()`.
-- **DON'T** use em dashes in user-facing UI copy. Use commas, periods, or "to". (`strategy/writing-style-guide.md`.)
-- **DON'T** change the JSON shapes in `public/data/` from the design side — see the data contract.
-- **DON'T** introduce a CSS framework theme layer or component library; compose the primitives.
-
-## Data contract
-
-The app reads static JSON from `public/data/`, produced by `scripts/export_viz_data.py`. Types
-are in `src/types.ts` (`CentralityRow`, `CommodityCentralityRow`, `Edge`, `NetworkStats`,
-`Metadata`, `StateTotals`, `CoreData`). Note: the state panel's Outbound/Inbound and top partners
-come from `state_trade_totals.json` (true totals from the full bilateral matrix), NOT from the
-top-N flows drawn on the map — don't recompute trade volume from the visible `edges`. Presentation changes never touch data shape. To change a field you change
-the export script, the consuming component, and `src/types.ts` together.
+- No em dashes in user-facing text. Use commas, periods, or "to".
+- Lead with plain measure names (trade prestige, bridge position, export reach); the method name follows.
+- A zero score has no meaningful rank: show "No brokerage" or "none", never the tied rank.
+- Rank gaps are positions, not performance: no "overperforms" or "punches above its weight". Signed numbers (`+14`, `−15`, true minus sign).
+- Numbers: `$2.80T`, `$206B`; percentages as on the page (`over 99%`, one decimal under 10%).
+- Registered results and post hoc ones are labelled as such wherever they appear; the Beyond pairs view carries "Post hoc, exploratory".
+- Say what is not claimed. The About tabs and the Methods page list it.
 
 ## Verify
 
-`npm run typecheck && npm run lint && npm run build`, then screenshot the preview at desktop
-(1440) and mobile (390). Frozen pipeline note: never touch `../evolution/` — it is a registered
-pre-registration artifact.
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+BASE_URL=http://localhost:5192 npm run e2e   # against `npx vite preview --port 5192`
+```
 
-## Copy and data rules (UI review, October 2026)
+Then look at the change at 360, 390, 844 by 390 (sideways) and 1280 wide. The e2e suite covers numbers against the data files, keyboard and screen-reader paths, contrast in every appearance, phone layouts, overlay framing and the no-WebGL fallback.
 
-- Lead with plain measure names (trade prestige, bridge position, export reach); the method name
-  follows in mono.
-- A zero score has no meaningful rank (about 30 states tie at zero betweenness): show "No
-  brokerage" or "none", never the tied rank, and leave those states out of counts and findings
-  (`src/lib/ranks.ts`).
-- Rank gaps are positions, not performance: no "overperforms", "punches above its weight" or
-  red/green. Use a signed number (`+14`, `−15`, true minus sign) in the gap colors.
-- Numbers: `$2.80T`, `$206B`; scores to three decimals, `<0.001` for small positive values.
-- Claims on the page must trace to a file in the repo (the subtitle total is computed from
-  `state_trade_totals.json`; the durability claim links the evolution report).
+## Classic dashboard (retired)
+
+The previous SVG dashboard was retired at release (2026-11-04): `/classic` redirects to `/` (`vercel.json`). Its code (`src/dashboard.tsx` and what only it imports) is no longer reachable and can be deleted.

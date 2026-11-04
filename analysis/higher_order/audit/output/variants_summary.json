@@ -1,0 +1,373 @@
+{
+ "links": {
+  "2012": 502,
+  "2017": 441,
+  "2022": 435
+ },
+ "persistent": 60,
+ "adjacent_pairs": 112,
+ "base_adjacent_share": {
+  "2012": 0.498,
+  "2017": 0.5669,
+  "2022": 0.5195
+ },
+ "persistent_adjacent_share": 0.7833333333333333,
+ "strongest15": [
+  {
+   "d": "DC",
+   "SCTG": "03",
+   "o": "MD",
+   "adjacent": true
+  },
+  {
+   "d": "ME",
+   "SCTG": "18",
+   "o": "NH",
+   "adjacent": true
+  },
+  {
+   "d": "MS",
+   "SCTG": "17",
+   "o": "LA",
+   "adjacent": true
+  },
+  {
+   "d": "MS",
+   "SCTG": "18",
+   "o": "LA",
+   "adjacent": true
+  },
+  {
+   "d": "NH",
+   "SCTG": "18",
+   "o": "MA",
+   "adjacent": true
+  },
+  {
+   "d": "NJ",
+   "SCTG": "03",
+   "o": "NY",
+   "adjacent": true
+  },
+  {
+   "d": "NM",
+   "SCTG": "15",
+   "o": "CO",
+   "adjacent": true
+  },
+  {
+   "d": "NM",
+   "SCTG": "18",
+   "o": "TX",
+   "adjacent": true
+  },
+  {
+   "d": "OR",
+   "SCTG": "18",
+   "o": "WA",
+   "adjacent": true
+  },
+  {
+   "d": "OR",
+   "SCTG": "43",
+   "o": "WA",
+   "adjacent": true
+  },
+  {
+   "d": "PA",
+   "SCTG": "15",
+   "o": "WV",
+   "adjacent": true
+  },
+  {
+   "d": "SD",
+   "SCTG": "15",
+   "o": "WY",
+   "adjacent": true
+  },
+  {
+   "d": "WA",
+   "SCTG": "43",
+   "o": "OR",
+   "adjacent": true
+  },
+  {
+   "d": "WI",
+   "SCTG": "21",
+   "o": "IL",
+   "adjacent": true
+  },
+  {
+   "d": "WV",
+   "SCTG": "17",
+   "o": "KY",
+   "adjacent": true
+  }
+ ],
+ "distance_diagnostics": {
+  "2012": {
+   "candidate_rows": 24598,
+   "rows_with_commodity_distance": 5989,
+   "median_pair_over_commodity_where_both": 1.0009671179883946,
+   "share_pair_vs_commodity_off_by_half_where_both": 0.09534145934212723,
+   "incumbent_median_r_over_pair_median": 0.9660887700534759,
+   "incumbent_share_r_below_pair_median": 0.5896414342629482
+  },
+  "2017": {
+   "candidate_rows": 21609,
+   "rows_with_commodity_distance": 4990,
+   "median_pair_over_commodity_where_both": 1.0008777063360998,
+   "share_pair_vs_commodity_off_by_half_where_both": 0.09318637274549098,
+   "incumbent_median_r_over_pair_median": 0.9888392857142857,
+   "incumbent_share_r_below_pair_median": 0.5374149659863946
+  },
+  "2022": {
+   "candidate_rows": 21315,
+   "rows_with_commodity_distance": 5509,
+   "median_pair_over_commodity_where_both": 1.0005583472920156,
+   "share_pair_vs_commodity_off_by_half_where_both": 0.06625521873298239,
+   "incumbent_median_r_over_pair_median": 0.9589720468890893,
+   "incumbent_share_r_below_pair_median": 0.6206896551724138
+  }
+ },
+ "nearest_k1_source_A": {
+  "commodity": 911,
+  "pair": 453
+ },
+ "class_swaps_k1_delta1": {
+  "commodity": {
+   "A_none_E_not": 0,
+   "E_none_A_not": 15,
+   "both_none": 296
+  },
+  "pair": {
+   "A_none_E_not": 148,
+   "E_none_A_not": 47,
+   "both_none": 148
+  },
+  "centroid": {
+   "A_none_E_not": 159,
+   "E_none_A_not": 47,
+   "both_none": 137
+  }
+ },
+ "A_none_by_construction": {
+  "A_none": 296,
+  "gap_under_100": 58,
+  "gap_under_250": 156,
+  "no_qualifying_origin": 14
+ },
+ "nonadjacent_surfaced": {
+  "D k=1 gap>=250": {
+   "unique_nonadjacent_links": 33,
+   "in_2_or_more_years": 3,
+   "links": [
+    "WA>AK 06 [2017]",
+    "WA>AK 11 [2017]",
+    "WA>AK 13 [2012, 2022]",
+    "WA>AK 18 [2017]",
+    "WA>AK 19 [2022]",
+    "WA>AK 21 [2017]",
+    "WA>AK 22 [2022]",
+    "WA>AK 26 [2017]",
+    "WA>AK 32 [2012]",
+    "WA>AK 41 [2012]",
+    "TX>AZ 18 [2022]",
+    "CO>CA 10 [2022]",
+    "UT>CA 19 [2022]",
+    "MO>CA 25 [2022]",
+    "WA>CA 25 [2012]",
+    "NJ>CT 11 [2022]",
+    "PA>CT 15 [2022]",
+    "LA>FL 17 [2012, 2017]",
+    "NC>FL 23 [2022]",
+    "CA>HI 02 [2017]",
+    "MN>IN 14 [2022]",
+    "IL>LA 02 [2017]",
+    "NV>MT 14 [2012]",
+    "CT>NC 37 [2022]",
+    "MN>NY 14 [2022]",
+    "MN>OH 14 [2022]",
+    "IL>OH 22 [2012]",
+    "MT>OR 02 [2017]",
+    "UT>OR 15 [2022]",
+    "VT>PA 10 [2022]",
+    "TN>SC 14 [2012]",
+    "KS>TX 02 [2012]",
+    "CA>WA 08 [2017, 2022]"
+   ]
+  },
+  "E-centroid k=1 gap>=250": {
+   "unique_nonadjacent_links": 27,
+   "in_2_or_more_years": 1,
+   "links": [
+    "WA>AK 11 [2017]",
+    "WA>AK 18 [2017]",
+    "WA>AK 21 [2017]",
+    "CO>CA 10 [2022]",
+    "UT>CA 19 [2022]",
+    "MO>CA 25 [2022]",
+    "WA>CA 25 [2012]",
+    "NJ>CT 11 [2022]",
+    "LA>FL 17 [2012, 2017]",
+    "LA>FL 18 [2017]",
+    "NC>FL 23 [2022]",
+    "MN>IN 14 [2022]",
+    "IL>LA 02 [2017]",
+    "VT>ME 25 [2022]",
+    "NV>MT 14 [2012]",
+    "CT>NC 37 [2022]",
+    "MN>NY 14 [2022]",
+    "MN>OH 14 [2022]",
+    "IL>OH 22 [2012]",
+    "MT>OR 02 [2017]",
+    "VT>PA 10 [2022]",
+    "KS>TX 02 [2012]",
+    "PA>VA 10 [2022]",
+    "CA>WA 08 [2022]",
+    "CA>WA 11 [2017]",
+    "MT>WA 14 [2012]",
+    "MT>WA 15 [2017]"
+   ]
+  },
+  "E-pair k=1 gap>=250": {
+   "unique_nonadjacent_links": 26,
+   "in_2_or_more_years": 1,
+   "links": [
+    "WA>AK 11 [2017]",
+    "WA>AK 18 [2017]",
+    "WA>AK 21 [2017]",
+    "CO>CA 10 [2022]",
+    "ID>CA 14 [2022]",
+    "UT>CA 19 [2022]",
+    "MO>CA 25 [2022]",
+    "WA>CA 25 [2012]",
+    "NJ>CT 11 [2022]",
+    "LA>FL 17 [2012, 2017]",
+    "LA>FL 18 [2017]",
+    "NC>FL 23 [2022]",
+    "MN>IN 14 [2022]",
+    "IL>LA 02 [2017]",
+    "VT>ME 25 [2022]",
+    "NV>MT 14 [2012]",
+    "CT>NC 37 [2022]",
+    "MN>NY 14 [2022]",
+    "MN>OH 14 [2022]",
+    "IL>OH 22 [2012]",
+    "MT>OR 02 [2017]",
+    "VT>PA 10 [2022]",
+    "KS>TX 02 [2012]",
+    "PA>VA 10 [2022]",
+    "CA>WA 08 [2022]",
+    "MT>WA 15 [2017]"
+   ]
+  },
+  "D k=2 gap>=250": {
+   "unique_nonadjacent_links": 52,
+   "in_2_or_more_years": 8,
+   "links": [
+    "WA>AK 06 [2017]",
+    "WA>AK 11 [2017]",
+    "WA>AK 12 [2022]",
+    "WA>AK 13 [2012, 2022]",
+    "WA>AK 18 [2017]",
+    "WA>AK 19 [2022]",
+    "WA>AK 21 [2012, 2017]",
+    "WA>AK 22 [2022]",
+    "WA>AK 26 [2017]",
+    "WA>AK 32 [2012]",
+    "WA>AK 40 [2017]",
+    "WA>AK 41 [2012]",
+    "TX>AZ 18 [2022]",
+    "CO>CA 10 [2022]",
+    "UT>CA 19 [2022]",
+    "MO>CA 25 [2022]",
+    "WA>CA 25 [2012]",
+    "NJ>CT 10 [2012]",
+    "NJ>CT 11 [2022]",
+    "PA>CT 15 [2022]",
+    "LA>FL 17 [2012, 2017]",
+    "NC>FL 23 [2022]",
+    "CA>HI 02 [2017]",
+    "CA>HI 19 [2012]",
+    "MN>IN 14 [2012, 2022]",
+    "TX>KS 17 [2012]",
+    "TX>KS 18 [2012]",
+    "IL>LA 02 [2017]",
+    "MO>LA 14 [2017]",
+    "VT>ME 12 [2017]",
+    "IL>MN 19 [2012]",
+    "NV>MT 14 [2012]",
+    "CO>MT 19 [2017]",
+    "CT>NC 37 [2022]",
+    "NC>NJ 09 [2012]",
+    "CT>NJ 37 [2022]",
+    "MN>NY 14 [2022]",
+    "MN>OH 14 [2012, 2022]",
+    "IL>OH 22 [2012]",
+    "MT>OR 02 [2017]",
+    "UT>OR 15 [2022]",
+    "VT>PA 10 [2022]",
+    "IL>SC 11 [2017]",
+    "TN>SC 14 [2012, 2017]",
+    "KS>TX 02 [2012]",
+    "TN>TX 25 [2022]",
+    "CA>UT 09 [2017]",
+    "CA>UT 11 [2017]",
+    "MN>WA 02 [2017, 2022]",
+    "CA>WA 08 [2017, 2022]",
+    "CA>WA 11 [2017]",
+    "WI>WA 12 [2022]"
+   ]
+  },
+  "E-centroid k=2 gap>=250": {
+   "unique_nonadjacent_links": 43,
+   "in_2_or_more_years": 5,
+   "links": [
+    "WA>AK 11 [2017]",
+    "WA>AK 12 [2022]",
+    "WA>AK 18 [2017]",
+    "WA>AK 21 [2012, 2017]",
+    "WA>AK 40 [2017]",
+    "CO>CA 10 [2022]",
+    "UT>CA 15 [2017]",
+    "UT>CA 19 [2022]",
+    "MO>CA 25 [2022]",
+    "WA>CA 25 [2012]",
+    "NJ>CT 10 [2012]",
+    "NJ>CT 11 [2022]",
+    "LA>FL 17 [2012, 2017]",
+    "LA>FL 18 [2017]",
+    "NC>FL 23 [2022]",
+    "CA>HI 19 [2012]",
+    "MN>IN 14 [2012, 2022]",
+    "IL>LA 02 [2017]",
+    "MO>LA 14 [2017]",
+    "VT>ME 12 [2017]",
+    "VT>ME 25 [2022]",
+    "IL>MN 19 [2012]",
+    "NV>MT 14 [2012]",
+    "CO>MT 19 [2017]",
+    "CT>NC 37 [2022]",
+    "NC>NJ 09 [2012]",
+    "CT>NJ 37 [2022]",
+    "MN>NY 14 [2022]",
+    "MN>OH 14 [2012, 2022]",
+    "IL>OH 22 [2012]",
+    "MT>OR 02 [2017]",
+    "VT>PA 10 [2022]",
+    "TN>SC 14 [2017]",
+    "KS>TX 02 [2012]",
+    "TN>TX 25 [2022]",
+    "CA>UT 11 [2017]",
+    "PA>VA 10 [2022]",
+    "MN>WA 02 [2017, 2022]",
+    "CA>WA 08 [2022]",
+    "CA>WA 11 [2017]",
+    "WI>WA 12 [2022]",
+    "MT>WA 14 [2012]",
+    "MT>WA 15 [2017]"
+   ]
+  }
+ }
+}

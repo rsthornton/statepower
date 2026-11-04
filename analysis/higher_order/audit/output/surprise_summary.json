@@ -1,0 +1,53 @@
+{
+ "min_records": 30,
+ "draws": 200,
+ "noise": {
+  "2012": {
+   "cells": 17377.0,
+   "median_boot_sd": 0.3137,
+   "share_abs_lr_over_2sd": 0.3692,
+   "share_ci_excludes_zero": 0.4556
+  },
+  "2017": {
+   "cells": 20081.0,
+   "median_boot_sd": 0.2868,
+   "share_abs_lr_over_2sd": 0.4031,
+   "share_ci_excludes_zero": 0.4878
+  },
+  "2022": {
+   "cells": 36703.0,
+   "median_boot_sd": 0.3199,
+   "share_abs_lr_over_2sd": 0.4452,
+   "share_ci_excludes_zero": 0.5263
+  }
+ },
+ "top20_check": {
+  "2012": {
+   "top20_min_lower_bound": 2.1413,
+   "top20_lower_bound_over_1": 20.0,
+   "top20_median_freq_in_boot_top20": 0.785,
+   "top20_median_freq_in_boot_top100": 1.0,
+   "top20_median_records": 42.5
+  },
+  "2017": {
+   "top20_min_lower_bound": 2.7478,
+   "top20_lower_bound_over_1": 20.0,
+   "top20_median_freq_in_boot_top20": 0.9325,
+   "top20_median_freq_in_boot_top100": 1.0,
+   "top20_median_records": 46.5
+  },
+  "2022": {
+   "top20_min_lower_bound": 0.0546,
+   "top20_lower_bound_over_1": 16.0,
+   "top20_median_freq_in_boot_top20": 0.565,
+   "top20_median_freq_in_boot_top100": 0.985,
+   "top20_median_records": 52.0
+  }
+ },
+ "top20_overlap": {
+  "2012-2017": 0,
+  "2017-2022": 1,
+  "2012-2022": 1
+ },
+ "top20_recurring_in_other_years": 15
+}

@@ -1,0 +1,18 @@
+{
+ "records": 2943533,
+ "cells": 3240,
+ "O:D:C": {
+  "max_abs_difference": 2.091837814077735e-10,
+  "largest_cell": 9870.581754520592,
+  "ra_loss_bits": 0.28996887250293524,
+  "two_n_ln2_loss": 1183247.908940271,
+  "poisson_deviance": 1183247.908940272
+ },
+ "OD:OC:DC": {
+  "max_abs_difference": 1.6007106751203537e-09,
+  "largest_cell": 18301.77274573056,
+  "ra_loss_bits": 0.0495320875492577,
+  "two_n_ln2_loss": 202120.79493985113,
+  "poisson_deviance": 202120.79493985095
+ }
+}

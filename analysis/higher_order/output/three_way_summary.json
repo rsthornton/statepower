@@ -1,0 +1,106 @@
+{
+ "2012": {
+  "year": 2012,
+  "records": {
+   "total_correlation": 0.7668348139079963,
+   "o_information": -0.15393500645769365,
+   "three_way": 0.1597142159636251,
+   "three_way_after_distance": 0.11860906148385703,
+   "three_way_null": 0.02616817041736521,
+   "three_way_after_distance_null": 0.024512423567544704,
+   "share_of_excess_explained_by_distance": 0.29539929444247326
+  },
+  "commodities": 40,
+  "dollars": {
+   "total_correlation": 1.457641594820931,
+   "o_information": -0.38588686903016445,
+   "three_way": 0.4112842916723244,
+   "three_way_after_distance": 0.34632250758410943
+  },
+  "size_slope": -0.541616940491963,
+  "spearman_rank_vs_excess": 0.8779185520361992,
+  "role_means_net_of_size": {
+   "Engine": -0.255,
+   "Generalist": 0.065,
+   "Market": -0.228,
+   "Router": -0.081,
+   "Specialist": 0.326,
+   "Sustainer": 0.103
+  }
+ },
+ "2017": {
+  "year": 2017,
+  "records": {
+   "total_correlation": 0.7537660176934793,
+   "o_information": -0.1481625670654516,
+   "three_way": 0.154795792141454,
+   "three_way_after_distance": 0.11268966327011645,
+   "three_way_null": 0.02022368829344051,
+   "three_way_after_distance_null": 0.019265891251679244,
+   "share_of_excess_explained_by_distance": 0.30577163210623093
+  },
+  "commodities": 40,
+  "dollars": {
+   "total_correlation": 1.3071801493002813,
+   "o_information": -0.34755502393518434,
+   "three_way": 0.361579315636156,
+   "three_way_after_distance": 0.30124836542045985
+  },
+  "size_slope": -0.5013069953542649,
+  "spearman_rank_vs_excess": 0.9047058823529411,
+  "role_means_net_of_size": {
+   "Engine": -0.254,
+   "Generalist": 0.098,
+   "Market": -0.275,
+   "Router": -0.128,
+   "Specialist": 0.34,
+   "Sustainer": 0.121
+  }
+ },
+ "2022": {
+  "year": 2022,
+  "records": {
+   "total_correlation": 0.7527609068460972,
+   "o_information": -0.1635523896211044,
+   "three_way": 0.169003437857968,
+   "three_way_after_distance": 0.12811774955351163,
+   "three_way_null": 0.002552117317150898,
+   "three_way_after_distance_null": 0.0024781137377764438,
+   "share_of_excess_explained_by_distance": 0.24518690865581994
+  },
+  "commodities": 40,
+  "dollars": {
+   "total_correlation": 1.3090278045779264,
+   "o_information": -0.3605482375907698,
+   "three_way": 0.3726166038523949,
+   "three_way_after_distance": 0.3224602471191024
+  },
+  "size_slope": -0.37297425253562155,
+  "spearman_rank_vs_excess": 0.7821719457013575,
+  "role_means_net_of_size": {
+   "Engine": -0.356,
+   "Generalist": 0.062,
+   "Market": -0.197,
+   "Router": 0.093,
+   "Specialist": 0.178,
+   "Sustainer": 0.097
+  }
+ },
+ "net_of_size_cross_year_spearman": {
+  "2012": {
+   "2012": 1.0,
+   "2017": 0.876,
+   "2022": 0.57
+  },
+  "2017": {
+   "2012": 0.876,
+   "2017": 1.0,
+   "2022": 0.549
+  },
+  "2022": {
+   "2012": 0.57,
+   "2017": 0.549,
+   "2022": 1.0
+  }
+ }
+}

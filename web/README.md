@@ -1,53 +1,64 @@
-# US Interstate Trade Centrality — Web Dashboard
+# Interstate Power Observatory: web app
 
-React + Vite + Tailwind frontend replacing the Plotly Dash app at us-trade.plotly.app.
+The site for the US interstate trade study: a 3-D map of the Commodity Flow Survey (2012, 2017, 2022), findings, data downloads and methods. Static files only; no server.
 
-## Stack
-
-- React 19 + Vite 8 + Tailwind 4 (mirrors gov-graphs)
-- Custom SVG Albers USA projection (no D3)
-- Static JSON data (no runtime server)
-
-## Quick Start
+## Run it
 
 ```bash
 cd web
 npm install
-npm run dev        # → localhost:5180
+npm run dev -- --port 5190
 ```
 
-## Data Pipeline
+## Pages
 
-All data is pre-computed by the Python toolkit. To regenerate JSON from CSVs:
+| Path | What |
+|---|---|
+| `/` (also `/explore`) | The map. Opens on all commodities, 2017, trade prestige. First visit opens an eight-stop tour. |
+| `/findings` | GDP comparison and the registered 2012 to 2022 results. |
+| `/data` | CSV downloads by year, data dictionary, checksums, raw sources, rebuild steps. |
+| `/methods` | How each measure is computed, registered vs post hoc, documents. |
+| `/classic` | The previous SVG dashboard, kept during the switch. |
+
+`vercel.json` rewrites each path to `index.html`; `src/main.tsx` lazy-loads the matching page, so three.js stays out of the classic bundle.
+
+## Code
+
+```
+src/
+  engine/engine.ts     three.js scene: states (solid or dot field), instanced flow arcs, camera, picking
+  engine/theme.ts      appearances: Neutral (default), Slate, Band, Observatory dark and light (experimental)
+  engine/geo.ts        ground layers: oceans, coasts, lakes, terrain around the states (decoration, lazy-loaded)
+  explore/FreightMap.tsx  map page: toolbar, tour, side panel, keyboard and screen-reader paths
+  explore/*Page.tsx    Findings, Data, Methods
+  explore/data.ts      loaders for public/data/v2
+  dashboard.tsx, App.tsx, components/   the classic dashboard (/classic)
+public/data/v2/        site data (meta, network/<year>, commodity/<sctg>, balance/<year>, registered)
+public/downloads/      CSVs, README (dictionary), SHA256SUMS.txt, manifest.json
+public/geo/            baked ground layers, written by ../scripts/build_geo_layers.py (Natural Earth, us-atlas, AWS Terrain Tiles)
+e2e/explore.check.mjs  browser checks
+```
+
+## Data
+
+Written by `scripts/export_site_data.py` from the evolution cache (read only) and the raw survey files:
 
 ```bash
-cd ..
-source .venv/bin/activate
-python scripts/export_viz_data.py
+../.venv/bin/python scripts/export_site_data.py --evolution-cache evolution/cache
+../.venv/bin/python -m pytest tests/test_site_data.py
 ```
 
-Output lands in `web/public/data/`. The React app fetches these at runtime.
+The tests compare the export with the registered report, the thesis tables and the download checksums.
 
-## Architecture
+## Checks
 
-```
-web/
-├── public/data/          # Static JSON (centralities, edges, coords, metadata)
-├── src/
-│   ├── App.jsx           # Top-level state: measure, selected state, network type
-│   ├── components/
-│   │   ├── TradeMap.jsx       # Custom SVG choropleth (Albers USA projection)
-│   │   ├── CentralityPills.jsx # Eigenvector / Betweenness / Out-Degree toggle
-│   │   ├── StateDrawer.jsx    # Right-panel state detail on click
-│   │   └── ColorLegend.jsx    # Viridis gradient bar
-│   ├── data/loader.js    # Fetch + cache JSON
-│   └── lib/
-│       ├── geo.js         # Albers USA projection (pure math, ~80 lines)
-│       ├── topo.js        # TopoJSON → GeoJSON decoder (no npm dep)
-│       └── colors.js      # Viridis + PRGn color scales
-└── package.json
+```bash
+npm run typecheck && npm run lint && npm test && npm run build
+BASE_URL=http://127.0.0.1:5190 npm run e2e   # needs the dev server and a Chromium; set CHROME if not found
 ```
 
-## Status
+The browser checks compare numbers on the page with the data files, cover keyboard use, reduced motion, the no-WebGL fallback and text contrast in every appearance.
 
-Phase 0 complete (scaffold + first render). Phase 1 (interactions, polish, deploy) is post-trip.
+## Design
+
+`DESIGN.md` is the design contract: appearances, color, layout, honest encoding, copy rules, and the classic dashboard's rules.

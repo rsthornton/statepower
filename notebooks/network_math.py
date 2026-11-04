@@ -811,7 +811,7 @@ def _():
 
             <div class="ipo-footer">
             <strong>Explore the interactive map →</strong>
-            <a href="https://tradeflows.halcyonic.systems/" target="_blank">The Interstate Power Observatory</a>
+            <a href="https://statepower.systems/" target="_blank">The Interstate Power Observatory</a>
 
             <strong>Data:</strong> U.S. Census Bureau Commodity Flow Survey 2017 ·
             <strong>Analysis:</strong> Thornton (2026), <em>Interstate Commerce Network Centrality</em>, Master's Thesis, Binghamton University ·

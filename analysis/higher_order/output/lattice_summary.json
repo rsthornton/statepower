@@ -1,0 +1,23 @@
+{
+ "2012": {
+  "year": 2012,
+  "records": 2279065,
+  "commodities": 40,
+  "null_draws": 10,
+  "bootstrap_draws": 40
+ },
+ "2017": {
+  "year": 2017,
+  "records": 2943533,
+  "commodities": 40,
+  "null_draws": 10,
+  "bootstrap_draws": 40
+ },
+ "2022": {
+  "year": 2022,
+  "records": 22150779,
+  "commodities": 40,
+  "null_draws": 10,
+  "bootstrap_draws": 40
+ }
+}

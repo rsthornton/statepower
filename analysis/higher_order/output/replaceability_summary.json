@@ -1,0 +1,33 @@
+{
+ "records": {
+  "2012": 2279065,
+  "2017": 2943533,
+  "2022": 22150779
+ },
+ "links": {
+  "2012": 502,
+  "2017": 441,
+  "2022": 435
+ },
+ "persistent_links": 60,
+ "strongest_dependence_links": 15,
+ "alternative_distance_source": {
+  "2012": {
+   "pair": 18434,
+   "commodity": 5989,
+   "reverse": 135,
+   "centroid": 40
+  },
+  "2017": {
+   "pair": 16439,
+   "commodity": 4990,
+   "reverse": 148,
+   "centroid": 32
+  },
+  "2022": {
+   "pair": 15740,
+   "commodity": 5509,
+   "reverse": 66
+  }
+ }
+}

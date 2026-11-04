@@ -2,7 +2,7 @@
 
 Validates the committed JSON in web/public/data/ against the shapes the React app
 (and src/types.ts) expect. Reads existing files only: no gated CFS data, no pipeline
-run, nothing under evolution/. Mirrors web/DESIGN.md and the trade-observatory skill's
+run, nothing under evolution/. Mirrors web/DESIGN.md's
 data-contract reference.
 """
 

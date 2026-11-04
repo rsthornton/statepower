@@ -1,0 +1,7 @@
+year,links,count,median_records,share_under_10_records,median_dc_records,median_share,median_usd_per_record,median_value_per_record,class: bulk minerals,class: farm and food,class: fuels,class: wood and paper,class: chemicals,class: machinery and vehicles,class: scrap and mixed,class: metals and minerals,class: other manufactured
+2012,transient,442,12.5,0.4163,62.0,0.6701,7292620.6297,16254.3159,0.3326,0.1946,0.1629,0.1063,0.0679,0.0498,0.0452,0.0204,0.0204
+2012,persistent,60,51.0,0.1,94.0,0.7674,5876711.6945,19875.2511,0.3833,0.25,0.2,0.0,0.1,0.0,0.0667,0.0,0.0
+2017,transient,381,21.0,0.3412,66.0,0.6734,4060427.59,12817.1264,0.3281,0.1995,0.1811,0.1155,0.0709,0.0341,0.0472,0.0157,0.0079
+2017,persistent,60,53.0,0.0667,139.0,0.7362,4716810.0383,16489.0384,0.3833,0.25,0.2,0.0,0.1,0.0,0.0667,0.0,0.0
+2022,transient,375,18.0,0.424,88.0,0.7053,2437597.3167,10831.3846,0.3307,0.1733,0.176,0.1253,0.0773,0.04,0.0533,0.016,0.008
+2022,persistent,60,73.0,0.0833,240.5,0.7898,2314880.136,12519.6304,0.3833,0.25,0.2,0.0,0.1,0.0,0.0667,0.0,0.0

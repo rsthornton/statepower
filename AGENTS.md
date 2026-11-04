@@ -2,14 +2,17 @@
 
 Instructions for any coding agent working in this repository. The research framing
 is [`README.md`](README.md); the layer map is [`ARCHITECTURE.md`](ARCHITECTURE.md);
-the dashboard's design system is [`web/DESIGN.md`](web/DESIGN.md).
+the map's rules are in [`web/README.md`](web/README.md); the classic dashboard's
+design system is [`web/DESIGN.md`](web/DESIGN.md).
 
 ## What this is
 
-Network centrality on the 2017 Commodity Flow Survey: a Python pipeline
-(`main.py` + `cfs-network-toolkit/`), committed canonical results (`results/`),
-Marimo notebooks, the thesis LaTeX (`paper/`), and the Interstate Power Observatory
-web app (`web/`, live at ustradeflow.systems).
+The Interstate Power Observatory: network measures of state power from the
+Commodity Flow Survey (2012, 2017, 2022). The web app (`web/`, statepower.systems),
+the registered three-survey study (`evolution/`, frozen), post hoc analyses
+(`analysis/`), the site data export (`scripts/export_site_data.py`), the original
+2017 pipeline (`main.py` + `cfs-network-toolkit/`, outputs in `results/`), Marimo
+notebooks, and the thesis (`paper/`).
 
 ## First commands
 
@@ -23,7 +26,8 @@ cd web && npm ci && npm run dev    # the Observatory
 ```
 
 CI (`.github/workflows/ci.yml`) runs, and a change should pass before it is pushed:
-`npm run typecheck`, `npm run lint`, `npm run test`, `npm run build` in `web/`;
+`npm run typecheck`, `npm run lint`, `npm run test`, `npm run build` in `web/`
+(plus `npm run e2e` against a running preview, which CI does not run);
 `ruff check cfs-network-toolkit scripts tests main.py`; `pytest tests/test_export_schema.py`.
 
 ## Do not touch
@@ -37,8 +41,10 @@ CI (`.github/workflows/ci.yml`) runs, and a change should pass before it is push
   `data/` are tracked.
 - `results/` holds the canonical pipeline outputs; change them only by re-running
   the pipeline.
-- `web/public/data/*.json` is the web app's data contract, written by
-  `scripts/export_viz_data.py`; regenerate it with that script.
+- `web/public/data/v2/` and `web/public/downloads/` are the map's data, written by
+  `scripts/export_site_data.py` and checked by `tests/test_site_data.py`.
+  `web/public/data/*.json` is the classic dashboard's, written by
+  `scripts/export_viz_data.py`. Regenerate with the script; never edit by hand.
 
 ## Commits
 
