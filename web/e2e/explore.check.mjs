@@ -355,7 +355,8 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
   check(heads.size >= 2, `home: structure stop cycles the survey years (${[...heads].join(" | ")})`);
   await page.click('[data-testid="tour-rail-7"]');
   await page.waitForFunction(() => /Kill it if Texas/.test(document.querySelector('[data-testid="tour-text"]')?.textContent ?? ""));
-  const wide = n17.states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 6);
+  const keep5 = [2012, 2017, 2022].map((y) => new Set(network(y).states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 5).map((x) => x.state)));
+  const wide = n17.states.filter((x) => keep5.every((k) => k.has(x.state)));
   const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
   const betText = await page.innerText('[data-testid="tour-text"]');
   const betMarks = await markLabels();
@@ -363,13 +364,15 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
   const ms = wide.find((x) => x.state === "MS") ?? [...wide].sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector))[0];
   const sources = await page.locator('[data-testid="tour-sources"] li').allInnerTexts();
   // dcmap.us/states, planned column, read 2026-11-05: the same table FreightMap holds, so the card's share is checked against it.
-  const GW = { KY: 7, MS: 0.28, SC: 2.2, MT: 1.3, MI: 1.2, ND: 2.5, TN: 0.168, LA: 3, IN: 4.6 }, TOTAL_GW = 276.4;
+  const GW = { TX: 73.6, VA: 23.3, PA: 15, GA: 18.6, UT: 19.1, OH: 13.8, NM: 13.2, WV: 13.4, AZ: 9.3, IL: 8.7, IN: 4.6, NV: 4.9, KY: 7, NY: 5.7, IA: 2.9, LA: 3, WY: 3.2,
+    ND: 2.5, MO: 2.7, OK: 3.6, CA: 2, OR: 1, WA: 1.4, WI: 0.21, NC: 1.5, AL: 2, MI: 1.2, NE: 2.1, SC: 2.2, KS: 2.2, AR: 1.7, CO: 1.9, ME: 2.1, MD: 1.1,
+    TN: 0.168, MN: 1, MS: 0.28, MT: 1.3, NJ: 0.295, AK: 1.1, FL: 0.77, SD: 0.575, ID: 0.078, CT: 0.1, MA: 0.023, HI: 0, DE: 0, NH: 0, VT: 0, DC: 0, RI: 0 }, TOTAL_GW = 276.4;
   const shareGw = Math.round(100 * wide.reduce((a, x) => a + (GW[x.state] ?? 0), 0) / TOTAL_GW);
-  check(betText.includes(`The ${WORDS[wide.length]} states here`) && betText.includes(`hold about ${shareGw}% of that planned power`) && !/: that \d+%/.test(betText)
+  check(betText.includes(`The ${WORDS[wide.length]} states here have ranked at least five places higher`) && betText.includes(`hold about ${shareGw}% of that planned power`) && !/: that \d+%/.test(betText)
     && betSay.includes(`${shareGw}% of the pipeline with the other ${WORDS[wide.length - 1]}`) && betMarks.length === wide.length
     && wide.every((x) => betMarks.includes(`${x.state} prestige #${x.rank_eigenvector} · GDP #${x.gdp_rank}`))
     && betSay.startsWith(`${ms.name}:`) && sources.length === 5 && /HYPOTHESIS/.test(sources[4]),
-    `home: The bet counts and labels the ${wide.length} states six or more places ahead of their GDP rank from network/2017.json (${wide.map((x) => x.state).join(", ")}), gives their ${shareGw}% of planned power, pins ${ms.state}, lists 5 sources`);
+    `home: The bet counts and labels the ${wide.length} states five or more places ahead of their GDP rank in network/2012, 2017 and 2022.json (${wide.map((x) => x.state).join(", ")}), gives their ${shareGw}% of planned power, pins ${ms.state}, lists 5 sources`);
   await page.click('[data-testid="tour-rail-8"]');
   check((await page.locator('[data-testid="tour-end"]').count()) === 1 && /author's note/.test(await page.innerText('[data-testid="tour-text"]')),
     "home: last stop hands off to free exploration and points to the author's note");

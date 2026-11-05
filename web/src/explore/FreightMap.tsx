@@ -26,10 +26,11 @@ type TourExtra = { nets: Record<Year, Network>; rho: { r2012: number; r2022: num
 // say: the stop's takeaway, a few words pinned on the map to the state it is about ([state, text]); the card carries the detail.
 type Say<T> = (data: T) => [string, string];
 // bare: towers only, no ties drawn. lit: ties drawn in the contrasting color. marks: states labelled with both ranks, so the comparison sits on the map.
-// focus and marks are a list, or a function of the stop's network when the list comes from the data. sources: one line each, shown under the card text.
-type States = string[] | ((net: Network) => string[]);
-type PositionStop = { kind: "position"; title: string; lead: string; year: Year; measure: Measure; state?: string; focus?: States; marks?: States; sources?: string[]; extra?: boolean; gdp?: boolean; bare?: boolean; lit?: boolean; risers?: boolean; cycle?: boolean; text: (net: Network, x: TourExtra | null) => string; say?: Say<Network> };
-const resolve = (v: States | undefined, net: Network | null, year: Year) => (typeof v === "function" ? (net && String(net.year) === year ? v(net) : undefined) : v);
+// focus and marks are a list, or a function of the stop's network (and the three-survey extra, once loaded) when the list comes from
+// the data; undefined means not yet known. sources: one line each, shown under the card text.
+type States = string[] | ((net: Network, x: TourExtra | null) => string[] | undefined);
+type PositionStop = { kind: "position"; title: string; lead: string; year: Year; measure: Measure; state?: string; focus?: States; marks?: States; sources?: string[]; extra?: boolean; gdp?: boolean; bare?: boolean; lit?: boolean; risers?: boolean; cycle?: boolean; text: (net: Network, x: TourExtra | null) => string; say?: (net: Network, x: TourExtra | null) => [string, string] | null };
+const resolve = (v: States | undefined, net: Network | null, year: Year, x: TourExtra | null) => (typeof v === "function" ? (net && String(net.year) === year ? v(net, x) : undefined) : v);
 // The Beyond pairs stop opens on the state carrying the most of what pairs miss, against states its size.
 type PairsStop = { kind: "pairs"; title: string; lead: string; year: Year; side: Side; text: (ra: Ra) => string; say?: Say<Ra> };
 type TourStop = FlowStop | PositionStop | PairsStop;
@@ -43,15 +44,20 @@ const ratioIn = (com: Commodity, y: Year, o: number, d: number) => com.years[y].
 const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 const words = (n: number) => WORDS[n] ?? String(n);
 const gapUp = (n: Network) => n.states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 5);
-// The bet's states: ahead of their GDP rank by six or more places, largest gap first.
-const gapWide = (n: Network) => n.states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 6).sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector));
-const gapWideStates = (n: Network) => gapWide(n).map((x) => x.state);
+// The lasting risers: `net`'s states ahead of their GDP rank by five or more places in every survey, largest gap in `net` first.
+const lasting = (nets: Record<Year, Network>, net: Network) => {
+  const keep = YEARS.map((y) => new Set(gapUp(nets[y]).map((s) => s.state)));
+  return net.states.filter((s) => keep.every((k) => k.has(s.state))).sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector));
+};
 // Planned data center power, not in this site's data. Source: dcmap.us/states, planned column, read 2026-11-05 (announced power;
 // trackers disagree). pausedGw: Texas (73.6), Georgia (18.6), Ohio (13.8) and New York (5.7) together.
 const PIPELINE_2026 = { totalGw: 276.4, pausedGw: 112, pausedShare: 40 };
-// The same source, in GW, for the states the bet can name (gap of 6 or more in any survey year) and two near misses (LA, IN).
-// A focus state with no entry here counts as 0, so the share can only be understated.
-const PLANNED_GW_2026: Record<string, number> = { KY: 7, MS: 0.28, SC: 2.2, MT: 1.3, MI: 1.2, ND: 2.5, TN: 0.168, LA: 3, IN: 4.6 };
+// The same source and column, every state and DC, in GW. A state with no entry would count as 0, so a share can only be understated.
+const PLANNED_GW_2026: Record<string, number> = {
+  TX: 73.6, VA: 23.3, PA: 15, GA: 18.6, UT: 19.1, OH: 13.8, NM: 13.2, WV: 13.4, AZ: 9.3, IL: 8.7, IN: 4.6, NV: 4.9, KY: 7, NY: 5.7, IA: 2.9, LA: 3, WY: 3.2,
+  ND: 2.5, MO: 2.7, OK: 3.6, CA: 2, OR: 1, WA: 1.4, WI: 0.21, NC: 1.5, AL: 2, MI: 1.2, NE: 2.1, SC: 2.2, KS: 2.2, AR: 1.7, CO: 1.9, ME: 2.1, MD: 1.1,
+  TN: 0.168, MN: 1, MS: 0.28, MT: 1.3, NJ: 0.295, AK: 1.1, FL: 0.77, SD: 0.575, ID: 0.078, CT: 0.1, MA: 0.023, HI: 0, DE: 0, NH: 0, VT: 0, DC: 0, RI: 0,
+};
 const plannedShare = (states: string[]) => Math.round(100 * states.reduce((a, s) => a + (PLANNED_GW_2026[s] ?? 0), 0) / PIPELINE_2026.totalGw);
 const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
 const listNames = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
@@ -126,8 +132,7 @@ const ALL_STOPS: TourStop[] = [
     lead: "Back to all goods: is this a snapshot or a lasting structure?",
     text: (_net, x) => {
       if (!x) return "";
-      const keep = YEARS.map((y) => new Set(gapUp(x.nets[y]).map((s) => s.state)));
-      const n = x.nets["2022"].states.filter((s) => keep.every((k) => k.has(s.state))).length;
+      const n = lasting(x.nets, x.nets["2022"]).length;
       return `Lasting.${REDUCED_MOTION ? "" : " Watch the years change: the map barely moves."} A forecast published ${x.rho.published}, before the 2012 and 2022 data were analyzed, said rankings would match 2017's at 0.9 or better. They came in at ${x.rho.r2012.toFixed(3)} and ${x.rho.r2022.toFixed(3)}. The ${words(n)} labelled states beat their GDP rank by five or more places in every survey.`;
     },
   },
@@ -153,19 +158,22 @@ const ALL_STOPS: TourStop[] = [
     },
   },
   {
-    kind: "position", title: "The bet", year: "2017", measure: "eigenvector", focus: gapWideStates, marks: gapWideStates,
-    say: (net) => {
-      const g = gapWide(net);
-      const s = g.find((x) => x.state === "MS") ?? g[0];
-      return [s.state, `${s.name}: ${ord(s.rank_eigenvector)} by ties, ${ord(s.gdp_rank)} by GDP, ${plannedShare(g.map((x) => x.state))}% of the pipeline with the other ${words(g.length - 1)}`];
+    kind: "position", title: "The bet", year: "2017", measure: "eigenvector", extra: true,
+    focus: (net, x) => (x ? lasting(x.nets, net).map((s) => s.state) : undefined), marks: (net, x) => (x ? lasting(x.nets, net).map((s) => s.state) : undefined),
+    say: (net, x) => {
+      if (!x) return null;
+      const g = lasting(x.nets, net);
+      const s = g.find((r) => r.state === "MS") ?? g[0];
+      return [s.state, `${s.name}: ${ord(s.rank_eigenvector)} by ties, ${ord(s.gdp_rank)} by GDP, ${plannedShare(g.map((r) => r.state))}% of the pipeline with the other ${words(g.length - 1)}`];
     },
     lead: "A hypothesis you can check.",
-    text: (net) => {
-      const g = gapWideStates(net);
-      return `After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${Math.round(PIPELINE_2026.totalGw)} GW). The ${words(g.length)} states here rank far higher by trade ties than by GDP. Together they hold about ${plannedShare(g)}% of that planned power, and nobody has promised to pause them. My guess is that data centers go to states that are not blocking them and already move a lot of goods. I am betting that share doubles by the end of 2028. Kill it if Texas lifts its pause within a year.`;
+    text: (net, x) => {
+      if (!x) return "";
+      const g = lasting(x.nets, net).map((s) => s.state);
+      return `After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${Math.round(PIPELINE_2026.totalGw)} GW). The ${words(g.length)} states here have ranked at least five places higher by trade ties than by GDP in every Commodity Flow Survey since 2012. Together they hold about ${plannedShare(g)}% of that planned power, and nobody has promised to pause them. My guess is that data centers go to states that are not blocking them and already move a lot of goods. I am betting that share doubles by the end of 2028. Kill it if Texas lifts its pause within a year.`;
     },
     sources: [
-      "Trade ties: Commodity Flow Survey 2017, state-to-state shipment value (this site's data).",
+      "Trade ties: Commodity Flow Survey 2012, 2017 and 2022, state-to-state shipment value (this site's data); ranks shown are 2017.",
       "GDP: BEA 2017.",
       "Planned data center power by state: dcmap.us/states, read 2026-11-05 (announced power; trackers disagree).",
       "Pledges: Fortune, 2026-11-04, \"Democrat wins will slow data center construction...\" (Hinojosa, Acton, Bottoms); New York Executive Order 62 as reported Nov 2026.",
@@ -245,8 +253,8 @@ export default function FreightMap() {
   const [tourExtra, setTourExtra] = useState<TourExtra | null>(null);
   const lensStop = tour !== null && TOUR[tour].kind === "position" ? (TOUR[tour] as PositionStop) : null;
   const gdpLens = !!lensStop?.gdp, risers = !!lensStop?.risers, cycling = !!lensStop?.cycle, bare = !!lensStop?.bare, lit = !!lensStop?.lit;
-  const marks = useMemo(() => resolve(lensStop?.marks, net, year), [lensStop, net, year]);
-  const focus = useMemo(() => resolve(lensStop?.focus, net, year), [lensStop, net, year]);
+  const marks = useMemo(() => resolve(lensStop?.marks, net, year, tourExtra), [lensStop, net, year, tourExtra]);
+  const focus = useMemo(() => resolve(lensStop?.focus, net, year, tourExtra), [lensStop, net, year, tourExtra]);
   // A stop that frames states without selecting one colors them all as selected (The bet); a stop that selects one keeps its single highlight.
   const focusIdx = useMemo(() => new Set(lensStop && !lensStop.state && focus ? focus.map((s) => cm.states.indexOf(s)) : []), [lensStop, focus, cm]);
   const [error, setError] = useState<string | null>(null);
@@ -474,7 +482,7 @@ export default function FreightMap() {
     if (tour !== null && !opening) {
       const st = TOUR[tour];
       const at = ([abbr, text]: [string, string]): Label => ({ state: cm.states.indexOf(abbr), text, tone: "callout" });
-      if (st.kind === "position" && st.say && net && String(net.year) === year) out.push(at(st.say(net)));
+      if (st.kind === "position" && st.say && net && String(net.year) === year) { const s = st.say(net, tourExtra); if (s) out.push(at(s)); }
       else if (st.kind === "pairs" && st.say && ras) out.push(at(st.say(ras[st.year])));
       else if (st.kind === "flow" && routeFlow && yd && com && com.sctg === sctg)
         out.push({ state: routeFlow[1], text: `${pct(share(yd, routeFlow))} of ${cm.names[routeFlow[1]]}'s interstate ${com.name.toLowerCase()} comes from ${cm.names[routeFlow[0]]}`, tone: "callout" });
@@ -497,8 +505,7 @@ export default function FreightMap() {
       [...net.states].map((r, i) => [r, i] as const).sort((a, b) => a[0].gdp_rank - b[0].gdp_rank).slice(0, 5)
         .forEach(([r, i]) => out.push({ state: i, text: `${r.state} #${r.gdp_rank} GDP`, tone: "plain" }));
     } else if (view === "position" && net && String(net.year) === year && cycling && tourExtra) {
-      const keep = YEARS.map((y) => new Set(gapUp(tourExtra.nets[y]).map((r) => r.state)));
-      net.states.forEach((r, i) => { if (keep.every((k) => k.has(r.state))) out.push({ state: i, text: `${r.state} +${r.gdp_rank - r.rank_eigenvector}`, tone: "teal" }); });
+      lasting(tourExtra.nets, net).forEach((r) => out.push({ state: net.states.indexOf(r), text: `${r.state} +${r.gdp_rank - r.rank_eigenvector}`, tone: "teal" }));
     } else if (view === "position" && net && String(net.year) === year && risers) {
       // The stop's answer gets its own label: the state first by trade prestige, with its GDP rank beside it.
       const top = net.states.reduce((a, b) => (b.rank_eigenvector < a.rank_eigenvector ? b : a));
