@@ -312,7 +312,7 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
     && /well-cited papers/.test(await page.innerText('[data-testid="tour-text"]')),
     "home: stop 3 switches the map to trade prestige and defines it in the card");
   check((await page.innerText('[data-testid="tagline"]')) === "GDP is not equivalent to economic power.", "home: the claim sits beside the title");
-  check((await page.getAttribute('[data-testid="nav-code"]', "href")) === "https://github.com/rsthornton/us-trade-centrality", "home: the nav links to the repository");
+  check((await page.getAttribute('[data-testid="nav-code"]', "href")) === "https://github.com/rsthornton/statepower", "home: the nav links to the repository");
   await page.click('[data-testid="tab-measure"]');
   const mp = await page.innerText('[data-testid="measure-panel"]');
   check(["trade prestige", "bridge position", "export reach"].every((m) => mp.toLowerCase().includes(m)), "home: How it's measured defines the three network measures");

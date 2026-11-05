@@ -216,7 +216,7 @@ def create_layout():
                 ]),
 
                 html.Div([
-                    html.A("GitHub", href="https://github.com/rsthornton/us-trade-centrality",
+                    html.A("GitHub", href="https://github.com/rsthornton/statepower",
                            target="_blank", className="text-muted small",
                            style={'textDecoration': 'none', 'opacity': '0.6'})
                 ], style={'marginTop': '8px'}),

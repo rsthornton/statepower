@@ -30,7 +30,7 @@ import type {
 
 // Interactive WASM notebook hosted on molab (marimo Cloud).
 const NOTEBOOK_URL = "https://molab.marimo.io/notebooks/nb_nMExyXbgvNSdHcr7C9EjfZ/app";
-const REPO_URL = "https://github.com/rsthornton/us-trade-centrality";
+const REPO_URL = "https://github.com/rsthornton/statepower";
 
 // DEV-only component gallery (lazy: its chunk is never loaded in production).
 const Gallery = import.meta.env.DEV ? lazy(() => import("./dev/Gallery")) : null;

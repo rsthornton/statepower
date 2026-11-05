@@ -1182,7 +1182,7 @@ function AboutPanel() {
         <p>Power is a fundamental question of theoretical political economy. Mainstream economics has few tools for reasoning about it in a holistic, systemic way, so it gets reduced to simple dimensions and types. Political science has a rich tradition of using network science to study different kinds of power, and economic complexity research is doing great work, but each looks along its own dimensions.</p>
         <p>I am curious what would happen if we had a robust, comprehensive, systemic measure of political economic power. What would it reveal about the current structure and dynamics of the US political economy? This site is a first result toward an answer.</p>
         <p>I see the Observatory as an interdisciplinary program: political scientists, economists, and systems and complex systems researchers developing comprehensive, integrated measures of state power in the context of US federalism.</p>
-        <p>If it interests you, tackle an <a href="https://github.com/rsthornton/us-trade-centrality/issues">open issue</a>, leave a comment with feedback, share it with a friend, or reach out to discuss problems, ideas and feature requests (<a href="mailto:rthornton@binghamton.edu">rthornton@binghamton.edu</a>).</p>
+        <p>If it interests you, tackle an <a href="https://github.com/rsthornton/statepower/issues">open issue</a>, leave a comment with feedback, share it with a friend, or reach out to discuss problems, ideas and feature requests (<a href="mailto:rthornton@binghamton.edu">rthornton@binghamton.edu</a>).</p>
         <p className="small muted">Shingai Thornton</p>
       </section>
       <h3>What this site shows</h3>

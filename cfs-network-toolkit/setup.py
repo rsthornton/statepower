@@ -20,7 +20,7 @@ setup(
     description="Network analysis toolkit for U.S. interstate commodity flows",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rsthornton/us-trade-centrality",
+    url="https://github.com/rsthornton/statepower",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",

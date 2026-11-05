@@ -46,7 +46,7 @@ The raw Census files are not redistributed; [`data/README.md`](data/README.md) s
 
 This is the first result of a program: comprehensive, integrated measures of state power in US federalism, bringing together political science, economics and systems research. Input-output, finance and travel layers are next.
 
-[Open an issue](https://github.com/rsthornton/us-trade-centrality/issues) with a question, a problem or an idea, or pick one up.
+[Open an issue](https://github.com/rsthornton/statepower/issues) with a question, a problem or an idea, or pick one up.
 
 ## Cite
 

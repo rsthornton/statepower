@@ -2,7 +2,7 @@
 
 Derived from the U.S. Census Bureau and Bureau of Transportation Statistics Commodity Flow
 Survey (CFS) public-use files. Every file here is produced by `scripts/export_site_data.py` in
-the repository [github.com/rsthornton/us-trade-centrality](https://github.com/rsthornton/us-trade-centrality);
+the repository [github.com/rsthornton/statepower](https://github.com/rsthornton/statepower);
 `SHA256SUMS.txt` lists a checksum for each CSV.
 
 ## Two series

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 const STUDY_URL =
-  "https://github.com/rsthornton/us-trade-centrality/blob/main/evolution/results/evolution_20260808_093628/report.md";
+  "https://github.com/rsthornton/statepower/blob/main/evolution/results/evolution_20260808_093628/report.md";
 
 interface ClaimProps {
   index: string;

@@ -1,4 +1,4 @@
-const REPO_URL = "https://github.com/rsthornton/us-trade-centrality";
+const REPO_URL = "https://github.com/rsthornton/statepower";
 
 export default function Footer() {
   return (

@@ -15,7 +15,7 @@ The thesis validated the method on one year (2017) and put it online as a live, 
 
 1. **The Interstate Power Observatory (live, public).** The existing single-year dashboard, already online at [tradeflows.halcyonic.systems](https://tradeflows.halcyonic.systems), extended into a three-survey instrument where anyone can watch state-level economic power shift from 2012 to 2022 and see each registered forecast resolve. No code, no paywall, no login.
 2. **Three pre-registered forecasts, resolved in public.** Numeric predictions registered before any cross-year number is computed, then tested and reported as holds or breaks, with public Manifold prediction markets on each. Both outcomes are findings.
-3. **Community-shaped and fully open.** Every data file, configuration, threshold, and run artifact is public on GitHub ([github.com/rsthornton/us-trade-centrality](https://github.com/rsthornton/us-trade-centrality)) from day one and archived under a DOI, so anyone can rerun and audit the pipeline. Observatory improvements are driven directly by ResearchHub community feedback, prioritizing readability and utility for a non-technical audience.
+3. **Community-shaped and fully open.** Every data file, configuration, threshold, and run artifact is public on GitHub ([github.com/rsthornton/statepower](https://github.com/rsthornton/statepower)) from day one and archived under a DOI, so anyone can rerun and audit the pipeline. Observatory improvements are driven directly by ResearchHub community feedback, prioritizing readability and utility for a non-technical audience.
 
 ## 1. Abstract
 
@@ -84,7 +84,7 @@ No human participants. The sample is the complete set of usable shipment records
 
 ### Materials and Procedures
 
-The pipeline is the thesis pipeline, unchanged in its core: load microdata; weight shipment values (edge weight = WGT_FACTOR × SHIPMT_VALUE); aggregate to origin-destination state pairs; construct a directed weighted 51-node graph; compute betweenness (with weight inversion so high trade value means short distance), eigenvector, and out-degree centrality; filter to the 33% backbone for robustness checks. The 2017 implementation is public ([github.com/rsthornton/us-trade-centrality](https://github.com/rsthornton/us-trade-centrality)), and two live artifacts demonstrate it: an interactive dashboard (tradeflows.halcyonic.systems) and a reproducible notebook (molab.marimo.io/notebooks/nb_nMExyXbgvNSdHcr7C9EjfZ/app).
+The pipeline is the thesis pipeline, unchanged in its core: load microdata; weight shipment values (edge weight = WGT_FACTOR × SHIPMT_VALUE); aggregate to origin-destination state pairs; construct a directed weighted 51-node graph; compute betweenness (with weight inversion so high trade value means short distance), eigenvector, and out-degree centrality; filter to the 33% backbone for robustness checks. The 2017 implementation is public ([github.com/rsthornton/statepower](https://github.com/rsthornton/statepower)), and two live artifacts demonstrate it: an interactive dashboard (tradeflows.halcyonic.systems) and a reproducible notebook (molab.marimo.io/notebooks/nb_nMExyXbgvNSdHcr7C9EjfZ/app).
 
 Running a new survey year requires a year configuration file and a matching state GDP control file (BEA SQGDP1, current-dollar, Q4), not structural code changes. Five documented comparability caveats govern the cross-year comparison:
 
@@ -113,7 +113,7 @@ Interpretation is symmetric and stated per hypothesis above: holds and breaks ar
 
 ### Ethics and Data Management
 
-All data are public federal statistical releases; no IRB approval is required. The repository (pipeline, configurations, thresholds file, run artifacts with config hashes) is public on GitHub from the start ([github.com/rsthornton/us-trade-centrality](https://github.com/rsthornton/us-trade-centrality)), and final results will be archived with a DOI. AI assistance is used deliberately and disclosed: Claude models (Anthropic) supported code scaffolding and document consolidation under direct author review; every statistical analysis is deterministic scripted code, publicly auditable, and verified by the author.
+All data are public federal statistical releases; no IRB approval is required. The repository (pipeline, configurations, thresholds file, run artifacts with config hashes) is public on GitHub from the start ([github.com/rsthornton/statepower](https://github.com/rsthornton/statepower)), and final results will be archived with a DOI. AI assistance is used deliberately and disclosed: Claude models (Anthropic) supported code scaffolding and document consolidation under direct author review; every statistical analysis is deterministic scripted code, publicly auditable, and verified by the author.
 
 **Open commitments:**
 
