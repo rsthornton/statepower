@@ -26,7 +26,10 @@ type TourExtra = { nets: Record<Year, Network>; rho: { r2012: number; r2022: num
 // say: the stop's takeaway, a few words pinned on the map to the state it is about ([state, text]); the card carries the detail.
 type Say<T> = (data: T) => [string, string];
 // bare: towers only, no ties drawn. lit: ties drawn in the contrasting color. marks: states labelled with both ranks, so the comparison sits on the map.
-type PositionStop = { kind: "position"; title: string; lead: string; year: Year; measure: Measure; state?: string; focus?: string[]; marks?: string[]; extra?: boolean; gdp?: boolean; bare?: boolean; lit?: boolean; risers?: boolean; cycle?: boolean; text: (net: Network, x: TourExtra | null) => string; say?: Say<Network> };
+// focus and marks are a list, or a function of the stop's network when the list comes from the data. sources: one line each, shown under the card text.
+type States = string[] | ((net: Network) => string[]);
+type PositionStop = { kind: "position"; title: string; lead: string; year: Year; measure: Measure; state?: string; focus?: States; marks?: States; sources?: string[]; extra?: boolean; gdp?: boolean; bare?: boolean; lit?: boolean; risers?: boolean; cycle?: boolean; text: (net: Network, x: TourExtra | null) => string; say?: Say<Network> };
+const resolve = (v: States | undefined, net: Network | null, year: Year) => (typeof v === "function" ? (net && String(net.year) === year ? v(net) : undefined) : v);
 // The Beyond pairs stop opens on the state carrying the most of what pairs miss, against states its size.
 type PairsStop = { kind: "pairs"; title: string; lead: string; year: Year; side: Side; text: (ra: Ra) => string; say?: Say<Ra> };
 type TourStop = FlowStop | PositionStop | PairsStop;
@@ -40,12 +43,19 @@ const ratioIn = (com: Commodity, y: Year, o: number, d: number) => com.years[y].
 const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 const words = (n: number) => WORDS[n] ?? String(n);
 const gapUp = (n: Network) => n.states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 5);
+// The bet's states: ahead of their GDP rank by six or more places, largest gap first.
+const gapWide = (n: Network) => n.states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 6).sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector));
+const gapWideStates = (n: Network) => gapWide(n).map((x) => x.state);
+// Planned data center power, not in this site's data. Source: dcmap.us/states, read 2026-11-05 (announced power; trackers disagree).
+// pausedGw: Texas, Georgia, Ohio and New York together. focusShare: the share held by the states the bet names; that figure was
+// worked out for KY, MS, MT, LA, SC, TN, MI and IN, while the site's 2017 network puts LA and IN at a gap of 5 and ND at 6.
+const PIPELINE_2026 = { totalGw: 276, pausedGw: 112, pausedShare: 40, focusShare: 7 };
 const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
 const listNames = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 // The tour tells one argument, the way Shingai puts it (2026-10-30): GDP is a total; power is exerted
 // over someone, so it lives in ties; so measure states by their ties. The map shows each step before the card names it:
 // towers alone (stop 1), the ties appear (2), the towers reshape by ties (3), then two states the ties reorder, zoomed and
-// lit (4, 5), one good at a time (6), how lasting and how complete the picture is (7, 8), and the reader's turn (9).
+// lit (4, 5), one good at a time (6), how lasting and how complete the picture is (7, 8), a stated bet with its sources (9), and the reader's turn (10).
 // Beyond pairs waits for its own entrance (Shingai, 2026-11-04): hidden from visitors, kept behind ?pairs=1.
 const PAIRS = (() => { try { return new URLSearchParams(location.search).has("pairs"); } catch { return false; } })();
 const ALL_STOPS: TourStop[] = [
@@ -140,6 +150,26 @@ const ALL_STOPS: TourStop[] = [
     },
   },
   {
+    kind: "position", title: "The bet", year: "2017", measure: "eigenvector", focus: gapWideStates, marks: gapWideStates,
+    say: (net) => {
+      const g = gapWide(net);
+      const s = g.find((x) => x.state === "MS") ?? g[0];
+      return [s.state, `${s.name}: ${ord(s.rank_eigenvector)} by ties, ${ord(s.gdp_rank)} by GDP, ${PIPELINE_2026.focusShare}% of the pipeline with the other ${words(g.length - 1)}`];
+    },
+    lead: "A hypothesis you can check.",
+    text: (net) => {
+      const n = gapWide(net).length;
+      return `After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${PIPELINE_2026.totalGw} GW). The ${words(n)} states here rank far higher by trade ties than by GDP. Together they hold about ${PIPELINE_2026.focusShare}% of that planned power, and nobody has promised to pause them. My guess: data centers go to states that are not blocking them and already move a lot of goods. The bet: that ${PIPELINE_2026.focusShare}% doubles by the end of 2028. Kill it if Texas lifts its pause within a year.`;
+    },
+    sources: [
+      "Trade ties: Commodity Flow Survey 2017, state-to-state shipment value (this site's data).",
+      "GDP: BEA 2017.",
+      "Planned data center power by state: dcmap.us/states, read 2026-11-05 (announced power; trackers disagree).",
+      "Pledges: Fortune, 2026-11-04, \"Democrat wins will slow data center construction...\" (Hinojosa, Acton, Bottoms); New York Executive Order 62 as reported Nov 2026.",
+      "Stamp: HYPOTHESIS, 2026-11-05.",
+    ],
+  },
+  {
     kind: "position", title: "Your turn", year: "2022", measure: "eigenvector",
     lead: "Explore it yourself.",
     text: () => "That is the core idea: to see power, look at connections, not totals. This is the first result of the Interstate Power Observatory. Click any state, choose one of 40 goods in the Commodity box above, or change the year. About has the author's note and how to send feedback.",
@@ -211,7 +241,11 @@ export default function FreightMap() {
   const [opening, setOpening] = useState(init.firstVisit);
   const [tourExtra, setTourExtra] = useState<TourExtra | null>(null);
   const lensStop = tour !== null && TOUR[tour].kind === "position" ? (TOUR[tour] as PositionStop) : null;
-  const gdpLens = !!lensStop?.gdp, risers = !!lensStop?.risers, cycling = !!lensStop?.cycle, bare = !!lensStop?.bare, lit = !!lensStop?.lit, marks = lensStop?.marks;
+  const gdpLens = !!lensStop?.gdp, risers = !!lensStop?.risers, cycling = !!lensStop?.cycle, bare = !!lensStop?.bare, lit = !!lensStop?.lit;
+  const marks = useMemo(() => resolve(lensStop?.marks, net, year), [lensStop, net, year]);
+  const focus = useMemo(() => resolve(lensStop?.focus, net, year), [lensStop, net, year]);
+  // A stop that frames states without selecting one colors them all as selected (The bet); a stop that selects one keeps its single highlight.
+  const focusIdx = useMemo(() => new Set(lensStop && !lensStop.state && focus ? focus.map((s) => cm.states.indexOf(s)) : []), [lensStop, focus, cm]);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeName>(readTheme);
   const C = THEMES[theme].ui;
@@ -413,7 +447,7 @@ export default function FreightMap() {
       const maxV = Math.max(...vals, 1e-12);
       const heights = vals.map((v) => 0.75 * (v / maxV));
       const colors = net.states.map((r, i) =>
-        i === selState ? C.sel : !gdpLens && measure === "betweenness" && r.no_brokerage ? C.state : interpolateSequential(vals[i] / maxV));
+        i === selState || focusIdx.has(i) ? C.sel : !gdpLens && measure === "betweenness" && r.no_brokerage ? C.state : interpolateSequential(vals[i] / maxV));
       scene.setStates(heights, colors, net.states.map((_, i) => i === selState), (tour !== null && tour <= 2) || cycling ? 0.035 : 0.12);
       return;
     }
@@ -429,7 +463,7 @@ export default function FreightMap() {
     });
     const edges = national.map((_, i) => i === selState || (!!routeFlow && (i === routeFlow[0] || i === routeFlow[1])));
     scene.setStates(heights, colors, edges);
-  }, [arcs, national, view, routeFlow, routeCands, selState, C, net, measure, year, gdpLens, tour, cycling, ra, side]);
+  }, [arcs, national, view, routeFlow, routeCands, selState, C, net, measure, year, gdpLens, tour, cycling, ra, side, focusIdx]);
 
   const labels = useMemo<Label[]>(() => {
     const out: Label[] = [];
@@ -552,7 +586,7 @@ export default function FreightMap() {
       setView("position"); setMeasure(t.measure); setRoute(null); setTab("state");
       if (t.state) selectState(cm.states.indexOf(t.state));
       else { setSelState(null); sceneRef.current?.flyHome(); }
-      if (t.focus) sceneRef.current?.flyToStates(t.focus.map((x) => cm.states.indexOf(x)));
+      if (Array.isArray(t.focus)) sceneRef.current?.flyToStates(t.focus.map((x) => cm.states.indexOf(x)));
       return;
     }
     if (t.kind === "pairs") {
@@ -565,6 +599,11 @@ export default function FreightMap() {
     setSctg(t.sctg); setView(t.view); setCommodityView(t.view === "reliance" ? "reliance" : "flows"); setSelState(null);
     selectRoute([o, d]);
   };
+  // A focus derived from the data frames its states once the stop's network is loaded.
+  useEffect(() => {
+    if (!lensStop || typeof lensStop.focus !== "function" || !focus) return;
+    sceneRef.current?.flyToStates(focus.map((x) => cm.states.indexOf(x)));
+  }, [lensStop, focus, cm]);
   const needsExtra = tour !== null && TOUR[tour].kind === "position" && (TOUR[tour] as PositionStop).extra;
   useEffect(() => {
     if (!needsExtra || tourExtra) return;
@@ -754,6 +793,11 @@ export default function FreightMap() {
                   </button>
                 ))}
               </div>
+            )}
+            {tourStop.kind === "position" && tourStop.sources && (
+              <ul className="fm-tour-sources" aria-label="Sources" data-testid="tour-sources">
+                {tourStop.sources.map((s) => <li key={s}>{s}</li>)}
+              </ul>
             )}
             <div className="fm-intro-btns">
               {tour! > 0 && <button className="fm-btn" onClick={() => goTour(tour! - 1)}>Back</button>}

@@ -148,6 +148,9 @@ html, body { margin: 0; background: var(--bg); }
 .fm-tour-picks button { min-height: 28px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--btn-line); background: var(--panel-2); color: var(--ink); font-size: 13px; }
 .fm-tour-picks button.on { background: var(--seg-on); border-color: var(--accent); font-weight: 600; }
 .fm-tour-ask { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+/* A stop's sources: one line each, small and muted, under the card text. */
+.fm-tour-sources { margin: 8px 0 0; padding: 0; list-style: none; font-size: 12px; line-height: 1.35; color: var(--ink-2); }
+.fm-tour-sources li { margin: 2px 0; }
 .fm-btn { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--btn-line); background: var(--panel-2); }
 .fm-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
 .fm-btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }

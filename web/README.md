@@ -14,7 +14,7 @@ npm run dev -- --port 5190
 
 | Path | What |
 |---|---|
-| `/` (also `/explore`) | The map. Opens on all commodities, 2017, trade prestige. First visit opens an eight-stop tour. |
+| `/` (also `/explore`) | The map. Opens on all commodities, 2017, trade prestige. First visit opens a nine-stop tour. |
 | `/findings` | GDP comparison and the registered 2012 to 2022 results. |
 | `/data` | CSV downloads by year, data dictionary, checksums, raw sources, rebuild steps. |
 | `/methods` | How each measure is computed, registered vs post hoc, documents. |

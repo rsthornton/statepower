@@ -296,8 +296,8 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
   const byGdp = [...n17.states].sort((x, y) => x.gdp_rank - y.gdp_rank);
   await page.waitForFunction(() => /stand tallest/.test(document.querySelector('[data-testid="tour-text"]')?.textContent ?? ""));
   const sizeText = await page.innerText('[data-testid="tour-text"]');
-  check(lead === "Start with the usual picture of power: size." && (await page.locator('.fm-rail li').count()) === 8,
-    `home: first visit opens the tour on the GDP picture (eight stops, Beyond pairs held back)`);
+  check(lead === "Start with the usual picture of power: size." && (await page.locator('.fm-rail li').count()) === 9,
+    `home: first visit opens the tour on the GDP picture (nine stops, Beyond pairs held back)`);
   check(byGdp.slice(0, 3).every((x) => sizeText.includes(x.name)) && (await page.locator('[data-testid="legend-gdp"]').count()) === 1
     && (await page.evaluate(() => window.__freight.arcCount())) === 0,
     `home: stop 1 maps GDP alone, no ties drawn, and names the top three from network/2017.json (${byGdp.slice(0, 3).map((x) => x.state).join(", ")})`);
@@ -354,6 +354,19 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
   for (let k = 0; k < 8; k++) { heads.add(await page.innerText('[data-testid="tour-head"]')); await page.waitForTimeout(800); }
   check(heads.size >= 2, `home: structure stop cycles the survey years (${[...heads].join(" | ")})`);
   await page.click('[data-testid="tour-rail-7"]');
+  await page.waitForFunction(() => /Kill it if Texas/.test(document.querySelector('[data-testid="tour-text"]')?.textContent ?? ""));
+  const wide = n17.states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 6);
+  const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+  const betText = await page.innerText('[data-testid="tour-text"]');
+  const betMarks = await markLabels();
+  const betSay = await callout();
+  const ms = wide.find((x) => x.state === "MS") ?? [...wide].sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector))[0];
+  const sources = await page.locator('[data-testid="tour-sources"] li').allInnerTexts();
+  check(betText.includes(`The ${WORDS[wide.length]} states here`) && betMarks.length === wide.length
+    && wide.every((x) => betMarks.includes(`${x.state} prestige #${x.rank_eigenvector} · GDP #${x.gdp_rank}`))
+    && betSay.startsWith(`${ms.name}:`) && sources.length === 5 && /HYPOTHESIS/.test(sources[4]),
+    `home: The bet counts and labels the ${wide.length} states six or more places ahead of their GDP rank from network/2017.json (${wide.map((x) => x.state).join(", ")}), pins ${ms.state}, lists 5 sources`);
+  await page.click('[data-testid="tour-rail-8"]');
   check((await page.locator('[data-testid="tour-end"]').count()) === 1 && /author's note/.test(await page.innerText('[data-testid="tour-text"]')),
     "home: last stop hands off to free exploration and points to the author's note");
   await page.click('[data-testid="tour-rail-1"]');
@@ -620,7 +633,7 @@ await browser.close();
   check((await page.innerText('[data-testid="legend-encodes"]')) === "Color and height by", "neutral: legend unchanged (color and height)");
 
   // Tour card in every appearance: text contrast against the card.
-  const TOUR_SEL = [".fm-tour-bar b", ".fm-tour-bar span", ".fm-tour-head", ".fm-tour-lead", '[data-testid="tour-text"]', ".fm-rail button", ".fm-tour .fm-btn", ".fm-tour-ask"];
+  const TOUR_SEL = [".fm-tour-bar b", ".fm-tour-bar span", ".fm-tour-head", ".fm-tour-lead", '[data-testid="tour-text"]', ".fm-rail button", ".fm-tour .fm-btn", ".fm-tour-ask", ".fm-tour-sources li"];
   for (const t of ["frostneutral", "frost", "frostband", "observatory", "observatorylight"]) {
     await page.goto("about:blank");
     await page.goto(`${BASE}/?t=4&theme=${t}#y=2017&v=position`, { waitUntil: "networkidle" });
