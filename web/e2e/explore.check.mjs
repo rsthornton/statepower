@@ -296,8 +296,8 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
   const byGdp = [...n17.states].sort((x, y) => x.gdp_rank - y.gdp_rank);
   await page.waitForFunction(() => /stand tallest/.test(document.querySelector('[data-testid="tour-text"]')?.textContent ?? ""));
   const sizeText = await page.innerText('[data-testid="tour-text"]');
-  check(lead === "Start with the usual picture of power: size." && (await page.locator('.fm-rail li').count()) === 9,
-    `home: first visit opens the tour on the GDP picture (nine stops, Beyond pairs held back)`);
+  check(lead === "Start with the usual picture of power: size." && (await page.locator('.fm-rail li').count()) === 8,
+    `home: first visit opens the tour on the GDP picture (eight stops, Beyond pairs held back)`);
   check(byGdp.slice(0, 3).every((x) => sizeText.includes(x.name)) && (await page.locator('[data-testid="legend-gdp"]').count()) === 1
     && (await page.evaluate(() => window.__freight.arcCount())) === 0,
     `home: stop 1 maps GDP alone, no ties drawn, and names the top three from network/2017.json (${byGdp.slice(0, 3).map((x) => x.state).join(", ")})`);
@@ -354,28 +354,48 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
   for (let k = 0; k < 8; k++) { heads.add(await page.innerText('[data-testid="tour-head"]')); await page.waitForTimeout(800); }
   check(heads.size >= 2, `home: structure stop cycles the survey years (${[...heads].join(" | ")})`);
   await page.click('[data-testid="tour-rail-7"]');
-  await page.waitForFunction(() => /Kill it if Texas/.test(document.querySelector('[data-testid="tour-text"]')?.textContent ?? ""));
+  check((await page.locator('[data-testid="tour-end"]').count()) === 1 && /author's note/.test(await page.innerText('[data-testid="tour-text"]')),
+    "home: last stop hands off to free exploration and points to the author's note");
+  // Hypotheses: four cards from the toolbar, apart from the tour. The risers are the states five or more places ahead of their GDP rank
+  // in all three networks; their share of planned power comes from the dcmap.us table FreightMap holds (planned column, read 2026-11-05).
+  await page.click('[data-testid="hyp-start"]');
+  await page.waitForFunction(() => /where does the load go/.test(document.querySelector('[data-testid="hyp-text"]')?.textContent ?? ""));
   const keep5 = [2012, 2017, 2022].map((y) => new Set(network(y).states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 5).map((x) => x.state)));
   const wide = n17.states.filter((x) => keep5.every((k) => k.has(x.state)));
   const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
-  const betText = await page.innerText('[data-testid="tour-text"]');
-  const betMarks = await markLabels();
-  const betSay = await callout();
-  const ms = wide.find((x) => x.state === "MS") ?? [...wide].sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector))[0];
-  const sources = await page.locator('[data-testid="tour-sources"] li').allInnerTexts();
-  // dcmap.us/states, planned column, read 2026-11-05: the same table FreightMap holds, so the card's share is checked against it.
   const GW = { TX: 73.6, VA: 23.3, PA: 15, GA: 18.6, UT: 19.1, OH: 13.8, NM: 13.2, WV: 13.4, AZ: 9.3, IL: 8.7, IN: 4.6, NV: 4.9, KY: 7, NY: 5.7, IA: 2.9, LA: 3, WY: 3.2,
     ND: 2.5, MO: 2.7, OK: 3.6, CA: 2, OR: 1, WA: 1.4, WI: 0.21, NC: 1.5, AL: 2, MI: 1.2, NE: 2.1, SC: 2.2, KS: 2.2, AR: 1.7, CO: 1.9, ME: 2.1, MD: 1.1,
     TN: 0.168, MN: 1, MS: 0.28, MT: 1.3, NJ: 0.295, AK: 1.1, FL: 0.77, SD: 0.575, ID: 0.078, CT: 0.1, MA: 0.023, HI: 0, DE: 0, NH: 0, VT: 0, DC: 0, RI: 0 }, TOTAL_GW = 276.4;
   const shareGw = Math.round(100 * wide.reduce((a, x) => a + (GW[x.state] ?? 0), 0) / TOTAL_GW);
-  check(betText.includes(`The ${WORDS[wide.length]} states here have ranked at least five places higher`) && betText.includes(`hold about ${shareGw}% of that planned power`) && !/: that \d+%/.test(betText)
-    && betSay.includes(`${shareGw}% of the pipeline with the other ${WORDS[wide.length - 1]}`) && betMarks.length === wide.length
-    && wide.every((x) => betMarks.includes(`${x.state} prestige #${x.rank_eigenvector} · GDP #${x.gdp_rank}`))
-    && betSay.startsWith(`${ms.name}:`) && sources.length === 5 && /HYPOTHESIS/.test(sources[4]),
-    `home: The bet counts and labels the ${wide.length} states five or more places ahead of their GDP rank in network/2012, 2017 and 2022.json (${wide.map((x) => x.state).join(", ")}), gives their ${shareGw}% of planned power, pins ${ms.state}, lists 5 sources`);
-  await page.click('[data-testid="tour-rail-8"]');
-  check((await page.locator('[data-testid="tour-end"]').count()) === 1 && /author's note/.test(await page.innerText('[data-testid="tour-text"]')),
-    "home: last stop hands off to free exploration and points to the author's note");
+  const big = wide.reduce((a, b) => ((GW[b.state] ?? 0) > (GW[a.state] ?? 0) ? b : a)).state;
+  const q1 = await page.innerText('[data-testid="hyp-text"]');
+  const hypMarks = await markLabels();
+  check((await page.locator('[data-testid="tour-card"]').count()) === 0 && (await page.locator('[data-testid="hyp-card"] .fm-rail li').count()) === 4
+    && (await page.locator('[data-testid="hyp-head"]').textContent()) === "The question · 2017" && (await page.innerText('[data-testid="hyp-stamp"]')) === "HYPOTHESIS, 2026-11-05"
+    && q1.includes(`The ${WORDS[wide.length]} states here have ranked at least five places higher`) && q1.includes(`hold about ${shareGw}% of that planned power`)
+    && hypMarks.length === wide.length && wide.every((x) => hypMarks.includes(`${x.state} prestige #${x.rank_eigenvector} · GDP #${x.gdp_rank}`)),
+    `home: Hypotheses opens four cards in place of the tour, labels the ${wide.length} lasting risers from network/2012, 2017 and 2022.json (${wide.map((x) => x.state).join(", ")}) and gives their ${shareGw}% of planned power`);
+  await page.click('[data-testid="hyp-next"]');
+  await page.waitForFunction(() => /Pass:/.test(document.querySelector('[data-testid="hyp-text"]')?.textContent ?? ""));
+  const q2 = await page.innerText('[data-testid="hyp-text"]');
+  check((await page.locator('[data-testid="hyp-head"]').textContent()) === "Bet 1, load moves · 2017" && q2.includes(`from ${shareGw}% to ${2 * shareGw}%, by December 2028`) && /Kill: Texas lifts its pause/.test(q2),
+    `home: Bet 1 doubles the computed share (${shareGw}% to ${2 * shareGw}%) and names its kill`);
+  await page.click('[data-testid="hyp-rail-3"]');
+  await page.waitForFunction(() => document.querySelector('[data-testid="hyp-scoreboard"]') !== null);
+  const board = await page.locator('[data-testid="hyp-scoreboard"] li').allInnerTexts();
+  const hypSources = await page.locator('[data-testid="hyp-sources"] li').allInnerTexts();
+  check((await page.locator('[data-testid="hyp-head"]').textContent()) === "Bet 3, the ceiling · 2017" && board.length === 3
+    && board[0] === `Bet 1: ${shareGw}% on 2026-11-05 (dcmap.us planned column); check Dec 2028.`
+    && board[1] === `Bet 2: 0 of ${wide.length} with a statewide pause on 2026-11-05; check Dec 2027.`
+    && board[2] === `Bet 3: largest of the ${WORDS[wide.length]} is ${big} at ${GW[big]} GW planned on 2026-11-05; check Dec 2028.`
+    && hypSources.length === 6 && /HYPOTHESIS/.test(hypSources[4]) && /Tennessee HB1847/.test(hypSources[5])
+    && (await page.innerText('[data-testid="hyp-stamp"]')) === "HYPOTHESIS, 2026-11-05" && (await page.locator('[data-testid="hyp-end"]').count()) === 1,
+    `home: the last card carries the scoreboard (baselines ${shareGw}%, 0 of ${wide.length}, ${big} ${GW[big]} GW) and six sources`);
+  await page.click('[data-testid="hyp-end"]');
+  await page.click('[data-testid="tour-start"]');
+  await page.waitForSelector('[data-testid="tour-card"]');
+  check((await page.locator('[data-testid="hyp-card"]').count()) === 0 && (await page.locator('.fm-rail li').count()) === 8,
+    "home: Close ends the cards, and the tour is eight stops again");
   await page.click('[data-testid="tour-rail-1"]');
   await page.click('[data-testid="tour-skip"]');
   check((await page.locator('[data-testid="tour-card"]').count()) === 0, "home: Skip tour closes it");
@@ -640,7 +660,8 @@ await browser.close();
   check((await page.innerText('[data-testid="legend-encodes"]')) === "Color and height by", "neutral: legend unchanged (color and height)");
 
   // Tour card in every appearance: text contrast against the card.
-  const TOUR_SEL = [".fm-tour-bar b", ".fm-tour-bar span", ".fm-tour-head", ".fm-tour-lead", '[data-testid="tour-text"]', ".fm-rail button", ".fm-tour .fm-btn", ".fm-tour-ask", ".fm-tour-sources li"];
+  const TOUR_SEL = [".fm-tour-bar b", ".fm-tour-bar span", ".fm-tour-head", ".fm-tour-lead", '[data-testid="tour-text"]', ".fm-rail button", ".fm-tour .fm-btn", ".fm-tour-ask"];
+  const HYP_SEL = [".fm-tour-bar b", ".fm-tour-bar span", ".fm-tour-head", '[data-testid="hyp-text"]', ".fm-rail button", ".fm-tour .fm-btn", ".fm-tour-sources li", ".fm-tour-stamp"];
   for (const t of ["frostneutral", "frost", "frostband", "observatory", "observatorylight"]) {
     await page.goto("about:blank");
     await page.goto(`${BASE}/?t=4&theme=${t}#y=2017&v=position`, { waitUntil: "networkidle" });
@@ -649,6 +670,11 @@ await browser.close();
     await page.waitForFunction(() => (document.querySelector('[data-testid="tour-text"]')?.textContent ?? "").length > 20);
     const low = await page.evaluate(ratio, TOUR_SEL);
     check(low.length > 0 && low[0][1] >= 4.5, `tour card (${t}): lowest text contrast ${JSON.stringify(low[0])} is at least 4.5:1`);
+    await page.click('[data-testid="hyp-start"]');
+    await page.click('[data-testid="hyp-rail-3"]');
+    await page.waitForFunction(() => document.querySelector('[data-testid="hyp-scoreboard"]') !== null);
+    const lowH = await page.evaluate(ratio, HYP_SEL);
+    check(lowH.length > 0 && lowH[0][1] >= 4.5, `hypotheses card (${t}): lowest text contrast ${JSON.stringify(lowH[0])} is at least 4.5:1`);
   }
   await page.context().browser().close();
 }

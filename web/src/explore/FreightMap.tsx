@@ -26,11 +26,7 @@ type TourExtra = { nets: Record<Year, Network>; rho: { r2012: number; r2022: num
 // say: the stop's takeaway, a few words pinned on the map to the state it is about ([state, text]); the card carries the detail.
 type Say<T> = (data: T) => [string, string];
 // bare: towers only, no ties drawn. lit: ties drawn in the contrasting color. marks: states labelled with both ranks, so the comparison sits on the map.
-// focus and marks are a list, or a function of the stop's network (and the three-survey extra, once loaded) when the list comes from
-// the data; undefined means not yet known. sources: one line each, shown under the card text.
-type States = string[] | ((net: Network, x: TourExtra | null) => string[] | undefined);
-type PositionStop = { kind: "position"; title: string; lead: string; year: Year; measure: Measure; state?: string; focus?: States; marks?: States; sources?: string[]; extra?: boolean; gdp?: boolean; bare?: boolean; lit?: boolean; risers?: boolean; cycle?: boolean; text: (net: Network, x: TourExtra | null) => string; say?: (net: Network, x: TourExtra | null) => [string, string] | null };
-const resolve = (v: States | undefined, net: Network | null, year: Year, x: TourExtra | null) => (typeof v === "function" ? (net && String(net.year) === year ? v(net, x) : undefined) : v);
+type PositionStop = { kind: "position"; title: string; lead: string; year: Year; measure: Measure; state?: string; focus?: string[]; marks?: string[]; extra?: boolean; gdp?: boolean; bare?: boolean; lit?: boolean; risers?: boolean; cycle?: boolean; text: (net: Network, x: TourExtra | null) => string; say?: Say<Network> };
 // The Beyond pairs stop opens on the state carrying the most of what pairs miss, against states its size.
 type PairsStop = { kind: "pairs"; title: string; lead: string; year: Year; side: Side; text: (ra: Ra) => string; say?: Say<Ra> };
 type TourStop = FlowStop | PositionStop | PairsStop;
@@ -59,12 +55,41 @@ const PLANNED_GW_2026: Record<string, number> = {
   TN: 0.168, MN: 1, MS: 0.28, MT: 1.3, NJ: 0.295, AK: 1.1, FL: 0.77, SD: 0.575, ID: 0.078, CT: 0.1, MA: 0.023, HI: 0, DE: 0, NH: 0, VT: 0, DC: 0, RI: 0,
 };
 const plannedShare = (states: string[]) => Math.round(100 * states.reduce((a, s) => a + (PLANNED_GW_2026[s] ?? 0), 0) / PIPELINE_2026.totalGw);
+// Hypotheses: four cards opened from the toolbar, apart from the tour (Shingai, 2026-11-05). Each frames the lasting risers (five or more
+// places ahead of their GDP rank in every survey; 2017 ranks shown), mutes the four paused states, and states a bet to check later.
+// share: the risers' share of planned power, a whole percent; n: how many risers. Every card is stamped HYPOTHESIS: a claim, not a finding.
+const HYP_DATE = "2026-11-05";
+const PAUSED_2026 = ["TX", "GA", "OH", "NY"];
+type HypCard = { head: string; text: (share: number, n: number) => string };
+const HYPOTHESES: HypCard[] = [
+  { head: "The question", text: (share, n) => `When the biggest economies close the door on data centers, where does the load go? After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${Math.round(PIPELINE_2026.totalGw)} GW). The ${words(n)} states here have ranked at least five places higher by trade ties than by GDP in every Commodity Flow Survey since 2012. Together they hold about ${share}% of that planned power, and nobody has promised to pause them.` },
+  { head: "Bet 1, load moves", text: (share, n) => `Data centers go to states that are not blocking them and already move a lot of goods. Pass: these ${words(n)}'s share of planned US data center capacity doubles, from ${share}% to ${2 * share}%, by December 2028. Kill: Texas lifts its pause within a year, or the share is flat or lower at the check.` },
+  { head: "Bet 2, price, not pause", text: (_share, n) => `States the network values more than GDP does will price access rather than deny it. Pass: by the end of 2027 none of the ${words(n)} has a statewide moratorium, and at least two more have ratepayer laws of the Tennessee kind, where a data center pays for the grid it needs. Kill: any of the ${words(n)} passes a statewide pause.` },
+  { head: "Bet 3, the ceiling", text: (_share, n) => `What they capture is bounded by grid headroom, not demand. Pass: at the 2028 check no single one of the ${words(n)} exceeds Texas's 2026 operating capacity (about 10.5 GW). Kill: one does, or self-generated power (the xAI Southaven model) makes the grid limit irrelevant.` },
+];
+// Baselines on the day the bets were placed, and when each is checked.
+const hypScoreboard = (share: number, risers: string[]) => {
+  const big = risers.reduce((a, b) => ((PLANNED_GW_2026[b] ?? 0) > (PLANNED_GW_2026[a] ?? 0) ? b : a));
+  return [
+    `Bet 1: ${share}% on ${HYP_DATE} (dcmap.us planned column); check Dec 2028.`,
+    `Bet 2: 0 of ${risers.length} with a statewide pause on ${HYP_DATE}; check Dec 2027.`,
+    `Bet 3: largest of the ${words(risers.length)} is ${big} at ${PLANNED_GW_2026[big] ?? 0} GW planned on ${HYP_DATE}; check Dec 2028.`,
+  ];
+};
+const HYP_SOURCES = [
+  "Trade ties: Commodity Flow Survey 2012, 2017 and 2022, state-to-state shipment value (this site's data); ranks shown are 2017.",
+  "GDP: BEA 2017.",
+  "Planned data center power by state: dcmap.us/states, read 2026-11-05 (announced power; trackers disagree).",
+  "Pledges: Fortune, 2026-11-04, \"Democrat wins will slow data center construction...\" (Hinojosa, Acton, Bottoms); New York Executive Order 62 as reported Nov 2026.",
+  "Stamp: HYPOTHESIS, 2026-11-05.",
+  "Ratepayer laws: Tennessee HB1847/SB2128 (2026) as reported by Quorum and MultiState; Texas 2026 operating capacity from dcmap.us.",
+];
 const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
 const listNames = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 // The tour tells one argument, the way Shingai puts it (2026-10-30): GDP is a total; power is exerted
 // over someone, so it lives in ties; so measure states by their ties. The map shows each step before the card names it:
 // towers alone (stop 1), the ties appear (2), the towers reshape by ties (3), then two states the ties reorder, zoomed and
-// lit (4, 5), one good at a time (6), how lasting and how complete the picture is (7, 8), a stated bet with its sources (9), and the reader's turn (10).
+// lit (4, 5), one good at a time (6), how lasting and how complete the picture is (7, 8), and the reader's turn (9).
 // Beyond pairs waits for its own entrance (Shingai, 2026-11-04): hidden from visitors, kept behind ?pairs=1.
 const PAIRS = (() => { try { return new URLSearchParams(location.search).has("pairs"); } catch { return false; } })();
 const ALL_STOPS: TourStop[] = [
@@ -158,29 +183,6 @@ const ALL_STOPS: TourStop[] = [
     },
   },
   {
-    kind: "position", title: "The bet", year: "2017", measure: "eigenvector", extra: true,
-    focus: (net, x) => (x ? lasting(x.nets, net).map((s) => s.state) : undefined), marks: (net, x) => (x ? lasting(x.nets, net).map((s) => s.state) : undefined),
-    say: (net, x) => {
-      if (!x) return null;
-      const g = lasting(x.nets, net);
-      const s = g.find((r) => r.state === "MS") ?? g[0];
-      return [s.state, `${s.name}: ${ord(s.rank_eigenvector)} by ties, ${ord(s.gdp_rank)} by GDP, ${plannedShare(g.map((r) => r.state))}% of the pipeline with the other ${words(g.length - 1)}`];
-    },
-    lead: "A hypothesis you can check.",
-    text: (net, x) => {
-      if (!x) return "";
-      const g = lasting(x.nets, net).map((s) => s.state);
-      return `After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${Math.round(PIPELINE_2026.totalGw)} GW). The ${words(g.length)} states here have ranked at least five places higher by trade ties than by GDP in every Commodity Flow Survey since 2012. Together they hold about ${plannedShare(g)}% of that planned power, and nobody has promised to pause them. My guess is that data centers go to states that are not blocking them and already move a lot of goods. I am betting that share doubles by the end of 2028. Kill it if Texas lifts its pause within a year.`;
-    },
-    sources: [
-      "Trade ties: Commodity Flow Survey 2012, 2017 and 2022, state-to-state shipment value (this site's data); ranks shown are 2017.",
-      "GDP: BEA 2017.",
-      "Planned data center power by state: dcmap.us/states, read 2026-11-05 (announced power; trackers disagree).",
-      "Pledges: Fortune, 2026-11-04, \"Democrat wins will slow data center construction...\" (Hinojosa, Acton, Bottoms); New York Executive Order 62 as reported Nov 2026.",
-      "Stamp: HYPOTHESIS, 2026-11-05.",
-    ],
-  },
-  {
     kind: "position", title: "Your turn", year: "2022", measure: "eigenvector",
     lead: "Explore it yourself.",
     text: () => "That is the core idea: to see power, look at connections, not totals. This is the first result of the Interstate Power Observatory. Click any state, choose one of 40 goods in the Commodity box above, or change the year. About has the author's note and how to send feedback.",
@@ -251,12 +253,17 @@ export default function FreightMap() {
   // First visit: the opening card sits over stop 1's map until the reader starts the tour or leaves it.
   const [opening, setOpening] = useState(init.firstVisit);
   const [tourExtra, setTourExtra] = useState<TourExtra | null>(null);
+  // The Hypotheses cards: which card is open; its states are the lasting risers, known once the three networks are in.
+  const [hyp, setHyp] = useState<number | null>(null);
+  const hypOn = hyp !== null;
+  const hypStates = useMemo(() => (hypOn && tourExtra && net && String(net.year) === "2017" ? lasting(tourExtra.nets, net).map((s) => s.state) : undefined), [hypOn, tourExtra, net]);
+  const hypShare = hypStates ? plannedShare(hypStates) : 0;
   const lensStop = tour !== null && TOUR[tour].kind === "position" ? (TOUR[tour] as PositionStop) : null;
   const gdpLens = !!lensStop?.gdp, risers = !!lensStop?.risers, cycling = !!lensStop?.cycle, bare = !!lensStop?.bare, lit = !!lensStop?.lit;
-  const marks = useMemo(() => resolve(lensStop?.marks, net, year, tourExtra), [lensStop, net, year, tourExtra]);
-  const focus = useMemo(() => resolve(lensStop?.focus, net, year, tourExtra), [lensStop, net, year, tourExtra]);
-  // A stop that frames states without selecting one colors them all as selected (The bet); a stop that selects one keeps its single highlight.
-  const focusIdx = useMemo(() => new Set(lensStop && !lensStop.state && focus ? focus.map((s) => cm.states.indexOf(s)) : []), [lensStop, focus, cm]);
+  const marks = hypStates ?? lensStop?.marks, focus = hypStates ?? lensStop?.focus;
+  // The Hypotheses cards color the risers as selected and the paused four as plain; a tour stop that selects one state keeps its single highlight.
+  const focusIdx = useMemo(() => new Set(hypOn && focus ? focus.map((s) => cm.states.indexOf(s)) : []), [hypOn, focus, cm]);
+  const mutedIdx = useMemo(() => new Set(hypOn ? PAUSED_2026.map((s) => cm.states.indexOf(s)) : []), [hypOn, cm]);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeName>(readTheme);
   const C = THEMES[theme].ui;
@@ -458,7 +465,7 @@ export default function FreightMap() {
       const maxV = Math.max(...vals, 1e-12);
       const heights = vals.map((v) => 0.75 * (v / maxV));
       const colors = net.states.map((r, i) =>
-        i === selState || focusIdx.has(i) ? C.sel : !gdpLens && measure === "betweenness" && r.no_brokerage ? C.state : interpolateSequential(vals[i] / maxV));
+        i === selState || focusIdx.has(i) ? C.sel : mutedIdx.has(i) || (!gdpLens && measure === "betweenness" && r.no_brokerage) ? C.state : interpolateSequential(vals[i] / maxV));
       scene.setStates(heights, colors, net.states.map((_, i) => i === selState), (tour !== null && tour <= 2) || cycling ? 0.035 : 0.12);
       return;
     }
@@ -474,7 +481,7 @@ export default function FreightMap() {
     });
     const edges = national.map((_, i) => i === selState || (!!routeFlow && (i === routeFlow[0] || i === routeFlow[1])));
     scene.setStates(heights, colors, edges);
-  }, [arcs, national, view, routeFlow, routeCands, selState, C, net, measure, year, gdpLens, tour, cycling, ra, side, focusIdx]);
+  }, [arcs, national, view, routeFlow, routeCands, selState, C, net, measure, year, gdpLens, tour, cycling, ra, side, focusIdx, mutedIdx]);
 
   const labels = useMemo<Label[]>(() => {
     const out: Label[] = [];
@@ -482,7 +489,7 @@ export default function FreightMap() {
     if (tour !== null && !opening) {
       const st = TOUR[tour];
       const at = ([abbr, text]: [string, string]): Label => ({ state: cm.states.indexOf(abbr), text, tone: "callout" });
-      if (st.kind === "position" && st.say && net && String(net.year) === year) { const s = st.say(net, tourExtra); if (s) out.push(at(s)); }
+      if (st.kind === "position" && st.say && net && String(net.year) === year) out.push(at(st.say(net)));
       else if (st.kind === "pairs" && st.say && ras) out.push(at(st.say(ras[st.year])));
       else if (st.kind === "flow" && routeFlow && yd && com && com.sctg === sctg)
         out.push({ state: routeFlow[1], text: `${pct(share(yd, routeFlow))} of ${cm.names[routeFlow[1]]}'s interstate ${com.name.toLowerCase()} comes from ${cm.names[routeFlow[0]]}`, tone: "callout" });
@@ -587,7 +594,7 @@ export default function FreightMap() {
     if (cell) sceneRef.current?.flyToStates([top, cell[0]]);
   };
   const goTour = (i: number | null) => {
-    setTour(i);
+    setTour(i); setHyp(null);
     if (i === null) return;
     try { localStorage.setItem(TOUR_SEEN, "1"); } catch { /* storage blocked: the tour may show again */ }
     const t = TOUR[i];
@@ -596,7 +603,7 @@ export default function FreightMap() {
       setView("position"); setMeasure(t.measure); setRoute(null); setTab("state");
       if (t.state) selectState(cm.states.indexOf(t.state));
       else { setSelState(null); sceneRef.current?.flyHome(); }
-      if (Array.isArray(t.focus)) sceneRef.current?.flyToStates(t.focus.map((x) => cm.states.indexOf(x)));
+      if (t.focus) sceneRef.current?.flyToStates(t.focus.map((x) => cm.states.indexOf(x)));
       return;
     }
     if (t.kind === "pairs") {
@@ -609,12 +616,15 @@ export default function FreightMap() {
     setSctg(t.sctg); setView(t.view); setCommodityView(t.view === "reliance" ? "reliance" : "flows"); setSelState(null);
     selectRoute([o, d]);
   };
-  // A focus derived from the data frames its states once the stop's network is loaded.
-  useEffect(() => {
-    if (!lensStop || typeof lensStop.focus !== "function" || !focus) return;
-    sceneRef.current?.flyToStates(focus.map((x) => cm.states.indexOf(x)));
-  }, [lensStop, focus, cm]);
-  const needsExtra = tour !== null && TOUR[tour].kind === "position" && (TOUR[tour] as PositionStop).extra;
+  // Opening a Hypotheses card: the 2017 prestige map with nothing selected; the risers frame the view once the three networks are in.
+  const goHyp = (i: number | null) => {
+    setHyp(i); setTour(null); setOpening(false);
+    if (i === null) return;
+    setYear("2017"); setView("position"); setMeasure("eigenvector"); setRoute(null); setSelState(null); setTab("state");
+  };
+  const endHyp = () => { setHyp(null); sceneRef.current?.flyHome(); };
+  useEffect(() => { if (hypStates) sceneRef.current?.flyToStates(hypStates.map((x) => cm.states.indexOf(x))); }, [hypStates, cm]);
+  const needsExtra = hypOn || (tour !== null && TOUR[tour].kind === "position" && (TOUR[tour] as PositionStop).extra);
   useEffect(() => {
     if (!needsExtra || tourExtra) return;
     Promise.all([
@@ -635,7 +645,7 @@ export default function FreightMap() {
     // selectState is stable in effect; the stop and the data decide when to run
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pairsStop, ras]);
-  const endTour = () => { setTour(null); setOpening(false); sceneRef.current?.flyHome(); };
+  const endTour = () => { setTour(null); setHyp(null); setOpening(false); sceneRef.current?.flyHome(); };
   // On a flow stop the reader may swap in another good: its strongest dependence becomes the route.
   const flowStop = tour !== null && TOUR[tour].kind === "flow" ? (TOUR[tour] as FlowStop) : null;
   const pickGood = (c: string) => {
@@ -648,7 +658,7 @@ export default function FreightMap() {
     if (f) selectRoute([f[0], f[1]]);
   }, [flowStop, com, sctg]);
   // On phones the tour card sits under the map, not over it: bring the map and the card into view together.
-  const touring = tour !== null && !opening;
+  const touring = (tour !== null && !opening) || hypOn;
   useEffect(() => {
     if (!touring || !matchMedia(PHONE).matches) return;
     canvasRef.current?.parentElement?.scrollIntoView({ block: "start", behavior: REDUCED_MOTION ? "auto" : "smooth" });
@@ -702,7 +712,7 @@ export default function FreightMap() {
         <SiteBar theme={theme} onTheme={setTheme} skipTo="#panel" />
         <div className="fm-toolbar" role="toolbar" aria-label="Map controls">
           <Group label="Year">
-            <Seg label="Year" items={YEARS.map((y) => [y, y] as const)} value={year} onChange={(y) => { setYear(y); setTour(null); }} test="year" />
+            <Seg label="Year" items={YEARS.map((y) => [y, y] as const)} value={year} onChange={(y) => { setYear(y); setTour(null); setHyp(null); }} test="year" />
           </Group>
           <Group label="Scope">
             <Seg label="Scope" items={PAIRS ? [["all", "All commodities"], ["one", "One commodity"], ["pairs", "Beyond pairs"]] as const : [["all", "All commodities"], ["one", "One commodity"]] as const}
@@ -710,7 +720,7 @@ export default function FreightMap() {
               onChange={(v) => {
                 setView(v === "all" ? "position" : v === "pairs" ? "pairs" : commodityView);
                 setTab(v === "all" ? "state" : v === "pairs" ? (selState !== null ? "state" : "ladder") : "commodity");
-                setTour(null); setRoute(null);
+                setTour(null); setHyp(null); setRoute(null);
               }} test="scope" />
           </Group>
           {view === "pairs" && (
@@ -721,14 +731,14 @@ export default function FreightMap() {
           {view === "position" && (
             <Group label="Commodity">
               <CommodityPicker browse sctg={sctg} year={year}
-                onPick={(c) => { setSctg(c); setView(commodityView); setTab("commodity"); setRoute(null); setSelState(null); setTour(null); }} />
+                onPick={(c) => { setSctg(c); setView(commodityView); setTab("commodity"); setRoute(null); setSelState(null); setTour(null); setHyp(null); }} />
             </Group>
           )}
           {(view === "flows" || view === "reliance") && (
             <Group label="Commodity" nested>
-              <CommodityPicker sctg={sctg} year={year} onPick={(c) => { setSctg(c); setRoute(null); setTour(null); }} />
+              <CommodityPicker sctg={sctg} year={year} onPick={(c) => { setSctg(c); setRoute(null); setTour(null); setHyp(null); }} />
               <Seg label="Show" items={[["flows", "Flows"], ["reliance", "Reliance"]] as const} value={view === "reliance" ? "reliance" : "flows"}
-                onChange={(v) => { setView(v); setCommodityView(v); setTour(null); setRoute(null); }} test="view" />
+                onChange={(v) => { setView(v); setCommodityView(v); setTour(null); setHyp(null); setRoute(null); }} test="view" />
             </Group>
           )}
           <div className="fm-spacer" />
@@ -760,6 +770,7 @@ export default function FreightMap() {
             <Seg label="Perspective" items={[["3d", "3D"], ["2d", "2D"]] as const} value={flat ? "2d" : "3d"} onChange={(v) => setFlat(v === "2d")} test="persp" />
             <button className="fm-home" onClick={() => sceneRef.current?.flyHome()} title="Reset view" data-testid="home">Reset view</button>
             <button className="fm-home" onClick={() => { setOpening(false); goTour(0); }} aria-pressed={tour !== null} data-testid="tour-start">Tour</button>
+            <button className="fm-home" onClick={() => goHyp(0)} aria-pressed={hypOn} data-testid="hyp-start">Hypotheses</button>
           </div>
           {opening && (
             <div className="fm-intro fm-open" data-testid="opening" role="dialog" aria-label="Introduction">
@@ -804,11 +815,6 @@ export default function FreightMap() {
                 ))}
               </div>
             )}
-            {tourStop.kind === "position" && tourStop.sources && (
-              <ul className="fm-tour-sources" aria-label="Sources" data-testid="tour-sources">
-                {tourStop.sources.map((s) => <li key={s}>{s}</li>)}
-              </ul>
-            )}
             <div className="fm-intro-btns">
               {tour! > 0 && <button className="fm-btn" onClick={() => goTour(tour! - 1)}>Back</button>}
               {tour! < TOUR.length - 1
@@ -821,11 +827,48 @@ export default function FreightMap() {
               Question about this stop? Ask the author</a>
           </div>
         )}
+        {hyp !== null && (
+          <div className="fm-tour" data-testid="hyp-card" role="region" aria-label="Hypotheses" data-occludes>
+            <div className="fm-tour-bar" data-testid="hyp-bar"><b>Hypotheses</b><span>Card {hyp + 1} of {HYPOTHESES.length}</span></div>
+            <ol className="fm-rail" aria-label="Hypothesis cards">
+              {HYPOTHESES.map((h, i) => (
+                <li key={i}>
+                  <button className={i === hyp ? "on" : i < hyp ? "done" : ""} aria-current={i === hyp ? "step" : undefined}
+                    aria-label={`Card ${i + 1}: ${h.head}`} onClick={() => goHyp(i)} data-testid={`hyp-rail-${i}`}>
+                    <span>{String(i + 1).padStart(2, "0")}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <div className="fm-tour-head" data-testid="hyp-head">{HYPOTHESES[hyp].head} · 2017</div>
+            <p data-testid="hyp-text">{hypStates ? HYPOTHESES[hyp].text(hypShare, hypStates.length) : "Loading…"}</p>
+            {hyp === HYPOTHESES.length - 1 && hypStates && (
+              <>
+                <div className="fm-tour-head">Scoreboard</div>
+                <ul className="fm-tour-sources" aria-label="Scoreboard" data-testid="hyp-scoreboard">
+                  {hypScoreboard(hypShare, hypStates).map((l) => <li key={l}>{l}</li>)}
+                </ul>
+                <div className="fm-tour-head">Sources</div>
+                <ul className="fm-tour-sources" aria-label="Sources" data-testid="hyp-sources">
+                  {HYP_SOURCES.map((l) => <li key={l}>{l}</li>)}
+                </ul>
+              </>
+            )}
+            <div className="fm-tour-stamp" data-testid="hyp-stamp">HYPOTHESIS, {HYP_DATE}</div>
+            <div className="fm-intro-btns">
+              {hyp > 0 && <button className="fm-btn" onClick={() => goHyp(hyp - 1)}>Back</button>}
+              {hyp < HYPOTHESES.length - 1
+                ? <button className="fm-btn primary" onClick={() => goHyp(hyp + 1)} data-testid="hyp-next">Next card</button>
+                : <button className="fm-btn primary" onClick={endHyp} data-testid="hyp-end">Close</button>}
+              {hyp < HYPOTHESES.length - 1 && <button className="fm-btn ghost" onClick={endHyp} data-testid="hyp-close">Close</button>}
+            </div>
+          </div>
+        )}
 
         <aside className="fm-side" id="panel" aria-label="Details" tabIndex={-1}>
           <div className="fm-sr" role="status" aria-live="polite" data-testid="announce">{announcement}</div>
           <StateSelect value={selState} onPick={selectState} names={cm.names} />
-          {yd && (view === "flows" || view === "reliance") && <GapChart yd={yd} route={route} onPick={(r) => { setSelState(null); selectRoute(r); setTour(null); }} names={cm.states} />}
+          {yd && (view === "flows" || view === "reliance") && <GapChart yd={yd} route={route} onPick={(r) => { setSelState(null); selectRoute(r); setTour(null); setHyp(null); }} names={cm.states} />}
           <nav className="fm-tabs" role="tablist">
             {(view === "pairs"
               ? [["ladder", "Ladder"], ["state", "State"], ["measure", "How it's measured"], ["about", "About"]] as const
