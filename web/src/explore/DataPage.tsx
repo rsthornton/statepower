@@ -109,7 +109,8 @@ export default function DataPage() {
           <li>Check them: <code>python -m pytest tests/test_site_data.py</code>.</li>
         </ol>
         <h2>Citing</h2>
-        <p>Thornton, S. (2026). <i>Testing Network Centrality for Economic Power Measurement: Structure and Boundaries in U.S. Interstate Trade.</i> M.S. thesis, Binghamton University. A data DOI will be listed here when one is issued.</p>
+        <p>Thornton, S. (2026). <i>Testing Network Centrality for Economic Power Measurement: Structure and Boundaries in U.S. Interstate Trade.</i> M.S. thesis, Binghamton University. </p>
+        <p>Software and data: Thornton, S. (2026). <i>The Interstate Power Observatory</i> (v1.0.0). Zenodo. <a href="https://doi.org/10.5281/zenodo.23988369">doi:10.5281/zenodo.23988369</a> (all versions; this release is <a href="https://doi.org/10.5281/zenodo.23988370">doi:10.5281/zenodo.23988370</a>).</p>
       </section>
     </PageShell>
   );

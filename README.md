@@ -50,6 +50,6 @@ This is the first result of a program: comprehensive, integrated measures of sta
 
 ## Cite
 
-Thornton, S. (2026). *Testing Network Centrality for Economic Power Measurement: Structure and Boundaries in U.S. Interstate Trade.* M.S. thesis, Department of Systems Science and Industrial Engineering, Binghamton University. A data DOI will be added when issued.
+Thornton, S. (2026). *Testing Network Centrality for Economic Power Measurement: Structure and Boundaries in U.S. Interstate Trade.* M.S. thesis, Department of Systems Science and Industrial Engineering, Binghamton University. Software and data: Thornton, S. (2026). *The Interstate Power Observatory* (v1.0.0). Zenodo. [https://doi.org/10.5281/zenodo.23988369](https://doi.org/10.5281/zenodo.23988369) (all versions; this release is [10.5281/zenodo.23988370](https://doi.org/10.5281/zenodo.23988370)). `CITATION.cff` carries the same.
 
 MIT License; see [LICENSE](LICENSE).

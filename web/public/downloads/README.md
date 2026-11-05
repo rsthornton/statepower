@@ -99,6 +99,7 @@ GDP: BEA state quarterly GDP (SQGDP1), fourth quarter of each survey year.
 
 Please cite the thesis and the repository. Thornton, S. (2026). *Testing Network Centrality for
 Economic Power Measurement: Structure and Boundaries in U.S. Interstate Trade.* M.S. thesis,
-Binghamton University. A data DOI will be added here when one is issued.
+Binghamton University. Software and data: Thornton, S. (2026). *The Interstate Power Observatory* (v1.0.0).
+Zenodo. https://doi.org/10.5281/zenodo.23988369 (all versions; this release is https://doi.org/10.5281/zenodo.23988370).
 
 Corrections to the thesis are listed in `paper/ERRATA.md` in the repository.

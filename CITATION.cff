@@ -6,6 +6,13 @@ authors:
   - family-names: Thornton
     given-names: Shingai
 type: software
+version: 1.0.0
+date-released: 2026-11-05
+doi: 10.5281/zenodo.23988370
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23988369
+    description: "The concept DOI, resolving to the latest version"
 license: MIT
 repository-code: "https://github.com/rsthornton/statepower"
 url: "https://statepower.systems"
