@@ -46,10 +46,13 @@ const gapUp = (n: Network) => n.states.filter((x) => x.gdp_rank - x.rank_eigenve
 // The bet's states: ahead of their GDP rank by six or more places, largest gap first.
 const gapWide = (n: Network) => n.states.filter((x) => x.gdp_rank - x.rank_eigenvector >= 6).sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector));
 const gapWideStates = (n: Network) => gapWide(n).map((x) => x.state);
-// Planned data center power, not in this site's data. Source: dcmap.us/states, read 2026-11-05 (announced power; trackers disagree).
-// pausedGw: Texas, Georgia, Ohio and New York together. focusShare: the share held by the states the bet names; that figure was
-// worked out for KY, MS, MT, LA, SC, TN, MI and IN, while the site's 2017 network puts LA and IN at a gap of 5 and ND at 6.
-const PIPELINE_2026 = { totalGw: 276, pausedGw: 112, pausedShare: 40, focusShare: 7 };
+// Planned data center power, not in this site's data. Source: dcmap.us/states, planned column, read 2026-11-05 (announced power;
+// trackers disagree). pausedGw: Texas (73.6), Georgia (18.6), Ohio (13.8) and New York (5.7) together.
+const PIPELINE_2026 = { totalGw: 276.4, pausedGw: 112, pausedShare: 40 };
+// The same source, in GW, for the states the bet can name (gap of 6 or more in any survey year) and two near misses (LA, IN).
+// A focus state with no entry here counts as 0, so the share can only be understated.
+const PLANNED_GW_2026: Record<string, number> = { KY: 7, MS: 0.28, SC: 2.2, MT: 1.3, MI: 1.2, ND: 2.5, TN: 0.168, LA: 3, IN: 4.6 };
+const plannedShare = (states: string[]) => Math.round(100 * states.reduce((a, s) => a + (PLANNED_GW_2026[s] ?? 0), 0) / PIPELINE_2026.totalGw);
 const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
 const listNames = (xs: string[]) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 // The tour tells one argument, the way Shingai puts it (2026-10-30): GDP is a total; power is exerted
@@ -154,12 +157,12 @@ const ALL_STOPS: TourStop[] = [
     say: (net) => {
       const g = gapWide(net);
       const s = g.find((x) => x.state === "MS") ?? g[0];
-      return [s.state, `${s.name}: ${ord(s.rank_eigenvector)} by ties, ${ord(s.gdp_rank)} by GDP, ${PIPELINE_2026.focusShare}% of the pipeline with the other ${words(g.length - 1)}`];
+      return [s.state, `${s.name}: ${ord(s.rank_eigenvector)} by ties, ${ord(s.gdp_rank)} by GDP, ${plannedShare(g.map((x) => x.state))}% of the pipeline with the other ${words(g.length - 1)}`];
     },
     lead: "A hypothesis you can check.",
     text: (net) => {
-      const n = gapWide(net).length;
-      return `After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${PIPELINE_2026.totalGw} GW). The ${words(n)} states here rank far higher by trade ties than by GDP. Together they hold about ${PIPELINE_2026.focusShare}% of that planned power, and nobody has promised to pause them. My guess: data centers go to states that are not blocking them and already move a lot of goods. The bet: that ${PIPELINE_2026.focusShare}% doubles by the end of 2028. Kill it if Texas lifts its pause within a year.`;
+      const g = gapWideStates(net);
+      return `After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${Math.round(PIPELINE_2026.totalGw)} GW). The ${words(g.length)} states here rank far higher by trade ties than by GDP. Together they hold about ${plannedShare(g)}% of that planned power, and nobody has promised to pause them. My guess is that data centers go to states that are not blocking them and already move a lot of goods. I am betting that share doubles by the end of 2028. Kill it if Texas lifts its pause within a year.`;
     },
     sources: [
       "Trade ties: Commodity Flow Survey 2017, state-to-state shipment value (this site's data).",

@@ -362,10 +362,14 @@ for (const [name, w, h] of [["desktop", 1280, 820], ["phone", 390, 844]]) {
   const betSay = await callout();
   const ms = wide.find((x) => x.state === "MS") ?? [...wide].sort((a, b) => (b.gdp_rank - b.rank_eigenvector) - (a.gdp_rank - a.rank_eigenvector))[0];
   const sources = await page.locator('[data-testid="tour-sources"] li').allInnerTexts();
-  check(betText.includes(`The ${WORDS[wide.length]} states here`) && betMarks.length === wide.length
+  // dcmap.us/states, planned column, read 2026-11-05: the same table FreightMap holds, so the card's share is checked against it.
+  const GW = { KY: 7, MS: 0.28, SC: 2.2, MT: 1.3, MI: 1.2, ND: 2.5, TN: 0.168, LA: 3, IN: 4.6 }, TOTAL_GW = 276.4;
+  const shareGw = Math.round(100 * wide.reduce((a, x) => a + (GW[x.state] ?? 0), 0) / TOTAL_GW);
+  check(betText.includes(`The ${WORDS[wide.length]} states here`) && betText.includes(`hold about ${shareGw}% of that planned power`) && !/: that \d+%/.test(betText)
+    && betSay.includes(`${shareGw}% of the pipeline with the other ${WORDS[wide.length - 1]}`) && betMarks.length === wide.length
     && wide.every((x) => betMarks.includes(`${x.state} prestige #${x.rank_eigenvector} · GDP #${x.gdp_rank}`))
     && betSay.startsWith(`${ms.name}:`) && sources.length === 5 && /HYPOTHESIS/.test(sources[4]),
-    `home: The bet counts and labels the ${wide.length} states six or more places ahead of their GDP rank from network/2017.json (${wide.map((x) => x.state).join(", ")}), pins ${ms.state}, lists 5 sources`);
+    `home: The bet counts and labels the ${wide.length} states six or more places ahead of their GDP rank from network/2017.json (${wide.map((x) => x.state).join(", ")}), gives their ${shareGw}% of planned power, pins ${ms.state}, lists 5 sources`);
   await page.click('[data-testid="tour-rail-8"]');
   check((await page.locator('[data-testid="tour-end"]').count()) === 1 && /author's note/.test(await page.innerText('[data-testid="tour-text"]')),
     "home: last stop hands off to free exploration and points to the author's note");
