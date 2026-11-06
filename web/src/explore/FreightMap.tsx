@@ -55,17 +55,18 @@ const PLANNED_GW_2026: Record<string, number> = {
   TN: 0.168, MN: 1, MS: 0.28, MT: 1.3, NJ: 0.295, AK: 1.1, FL: 0.77, SD: 0.575, ID: 0.078, CT: 0.1, MA: 0.023, HI: 0, DE: 0, NH: 0, VT: 0, DC: 0, RI: 0,
 };
 const plannedShare = (states: string[]) => Math.round(100 * states.reduce((a, s) => a + (PLANNED_GW_2026[s] ?? 0), 0) / PIPELINE_2026.totalGw);
-// Hypotheses: four cards opened from the toolbar, apart from the tour (Shingai, 2026-11-05). Each frames the lasting risers (five or more
+// Hypotheses: five cards opened from the toolbar, apart from the tour (Shingai, 2026-11-05). Each frames the lasting risers (five or more
 // places ahead of their GDP rank in every survey; 2017 ranks shown), mutes the four paused states, and states a bet to check later.
 // share: the risers' share of planned power, a whole percent; n: how many risers. Every card is stamped HYPOTHESIS: a claim, not a finding.
 const HYP_DATE = "2026-11-05";
 const PAUSED_2026 = ["TX", "GA", "OH", "NY"];
 type HypCard = { head: string; text: (share: number, n: number) => string };
 const HYPOTHESES: HypCard[] = [
-  { head: "The question", text: (share, n) => `When the biggest economies close the door on data centers, where does the load go? After the 2026 midterms, governors-elect in Texas, Georgia and Ohio promised to pause new data centers, and New York froze permits for big ones. By one tracker's count those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country (${PIPELINE_2026.pausedGw} of ${Math.round(PIPELINE_2026.totalGw)} GW). The ${words(n)} states here have ranked at least five places higher by trade ties than by GDP in every Commodity Flow Survey since 2012. Together they hold about ${share}% of that planned power, and nobody has promised to pause them.` },
+  { head: "The question", text: (share, n) => `When the biggest economies close the door on data centers, where does the load go? New governors in Texas, Georgia and Ohio have promised a pause, and New York froze permits for big ones. Those four hold about ${PIPELINE_2026.pausedShare}% of the planned data center power in the country. The ${words(n)} states here have ranked at least five places higher by trade ties than by GDP in every Commodity Flow Survey since 2012. They hold about ${share}% of that planned power, and nobody has promised to pause them.` },
   { head: "Bet 1, load moves", text: (share, n) => `Data centers go to states that are not blocking them and already move a lot of goods. Pass: these ${words(n)}'s share of planned US data center capacity doubles, from ${share}% to ${2 * share}%, by December 2028. Kill: Texas lifts its pause within a year, or the share is flat or lower at the check.` },
   { head: "Bet 2, price, not pause", text: (_share, n) => `States the network values more than GDP does will price access rather than deny it. Pass: by the end of 2027 none of the ${words(n)} has a statewide moratorium, and at least two more have ratepayer laws of the Tennessee kind, where a data center pays for the grid it needs. Kill: any of the ${words(n)} passes a statewide pause.` },
   { head: "Bet 3, the ceiling", text: (_share, n) => `What they capture is bounded by grid headroom, not demand. Pass: at the 2028 check no single one of the ${words(n)} exceeds Texas's 2026 operating capacity (about 10.5 GW). Kill: one does, or self-generated power (the xAI Southaven model) makes the grid limit irrelevant.` },
+  { head: "Scoreboard", text: () => `Three bets, placed ${HYP_DATE}. The baselines below are what each is checked against.` },
 ];
 // Baselines on the day the bets were placed, and when each is checked.
 const hypScoreboard = (share: number, risers: string[]) => {
@@ -840,18 +841,19 @@ export default function FreightMap() {
                 </li>
               ))}
             </ol>
-            <div className="fm-tour-head" data-testid="hyp-head">{HYPOTHESES[hyp].head} · 2017</div>
+            <div className="fm-tour-head" data-testid="hyp-head">{HYPOTHESES[hyp].head}{hyp < HYPOTHESES.length - 1 ? " · 2017" : ""}</div>
             <p data-testid="hyp-text">{hypStates ? HYPOTHESES[hyp].text(hypShare, hypStates.length) : "Loading…"}</p>
             {hyp === HYPOTHESES.length - 1 && hypStates && (
               <>
-                <div className="fm-tour-head">Scoreboard</div>
                 <ul className="fm-tour-sources" aria-label="Scoreboard" data-testid="hyp-scoreboard">
                   {hypScoreboard(hypShare, hypStates).map((l) => <li key={l}>{l}</li>)}
                 </ul>
-                <div className="fm-tour-head">Sources</div>
-                <ul className="fm-tour-sources" aria-label="Sources" data-testid="hyp-sources">
-                  {HYP_SOURCES.map((l) => <li key={l}>{l}</li>)}
-                </ul>
+                <details className="fm-tour-details" data-testid="hyp-sources-box">
+                  <summary>Sources</summary>
+                  <ul className="fm-tour-sources" aria-label="Sources" data-testid="hyp-sources">
+                    {HYP_SOURCES.map((l) => <li key={l}>{l}</li>)}
+                  </ul>
+                </details>
               </>
             )}
             <div className="fm-tour-stamp" data-testid="hyp-stamp">HYPOTHESIS, {HYP_DATE}</div>

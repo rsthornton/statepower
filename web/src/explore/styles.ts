@@ -151,6 +151,9 @@ html, body { margin: 0; background: var(--bg); }
 /* A card's scoreboard or sources: one line each, small and muted, under the card text; the stamp names what the card is. */
 .fm-tour-sources { margin: 4px 0 8px; padding: 0; list-style: none; font-size: 12px; line-height: 1.35; color: var(--ink-2); }
 .fm-tour-sources li { margin: 2px 0; }
+.fm-tour-details { margin: 2px 0 6px; }
+.fm-tour-details summary { cursor: pointer; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--kicker); }
+.fm-tour-details summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .fm-tour-stamp { margin: 8px 0 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--kicker); }
 .fm-btn { padding: 8px 14px; border-radius: 10px; border: 1px solid var(--btn-line); background: var(--panel-2); }
 .fm-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
